@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block styles %}
+<style>
+    .article-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .article-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .article-title {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: #212529;
+    }
+    .article-meta {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    .article-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+    .article-content img {
+        max-width: 100%;
+        height: auto;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+    .article-content p {
+        margin-bottom: 1.5rem;
+    }
+    .article-content h1, .article-content h2, .article-content h3, 
+    .article-content h4, .article-content h5, .article-content h6 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #212529;
+    }
+    .article-content a {
+        color: #0d6efd;
+        text-decoration: none;
+    }
+    .article-content a:hover {
+        text-decoration: underline;
+    }
+    .article-content blockquote {
+        border-left: 4px solid #ced4da;
+        padding-left: 1rem;
+        color: #6c757d;
+        font-style: italic;
+        margin: 1.5rem 0;
+    }
+    .article-content code {
+        background-color: #f8f9fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: monospace;
+    }
+    .article-content pre {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+    }
+    .back-btn {
+        margin-bottom: 20px;
+    }
+    .actions-bar {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0;
+        padding-top: 20px;
+        border-top: 1px solid #dee2e6;
+    }
+    /* 黑暗模式切换 */
+    body.dark-mode {
+        background-color: #212529;
+        color: #e9ecef;
+    }
+    body.dark-mode .article-container {
+        background-color: #343a40;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    body.dark-mode .article-title {
+        color: #f8f9fa;
+    }
+    body.dark-mode .article-content h1, 
+    body.dark-mode .article-content h2, 
+    body.dark-mode .article-content h3, 
+    body.dark-mode .article-content h4, 
+    body.dark-mode .article-content h5, 
+    body.dark-mode .article-content h6 {
+        color: #f8f9fa;
+    }
+    body.dark-mode .article-content a {
+        color: #6ea8fe;
+    }
+    body.dark-mode .article-content code,
+    body.dark-mode .article-content pre {
+        background-color: #495057;
+        color: #e9ecef;
+    }
+    .mode-toggle {
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="back-btn">
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+        </svg>
+        返回文章列表
+    </a>
+</div>
+
+<div class="article-container">
+    <div class="article-header">
+        <h1 class="article-title">{{ title }}</h1>
+        <div class="article-meta">
+            原文链接: <a href="{{ source_url }}" target="_blank">{{ source_url }}</a>
+        </div>
+        <button id="darkModeToggle" class="btn btn-outline-secondary mode-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars" viewBox="0 0 16 16">
+                <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
+                <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+            </svg>
+            <span id="modeText">夜间模式</span>
+        </button>
+    </div>
+    
+    <div class="article-content">
+        {{ content|safe }}
+    </div>
+    
+    <div class="actions-bar">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            返回文章列表
+        </a>
+        <a href="{{ source_url }}" target="_blank" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+            </svg>
+            在原网站查看
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 夜间模式切换
+    document.addEventListener('DOMContentLoaded', function() {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const modeText = document.getElementById('modeText');
+        
+        // 检查本地存储中的模式设置
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        
+        // 应用存储的模式设置
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            modeText.textContent = '日间模式';
+        }
+        
+        // 切换模式
+        darkModeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            modeText.textContent = isDark ? '日间模式' : '夜间模式';
+            localStorage.setItem('darkMode', isDark);
+        });
+    });
+</script>
+{% endblock %} 

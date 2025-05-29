@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆形 -->
+  <rect width="180" height="180" rx="45" fill="#F26522"/>
+  
+  <!-- RSS标志元素 -->
+  <circle cx="70" cy="110" r="12" fill="white"/>
+  <path d="M70 85C85 85 97 97 97 110" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <path d="M70 60C100 60 122 82 122 110" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  
+  <!-- 飞翔元素 -->
+  <path d="M120 65C135 50 145 60 150 65" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <path d="M130 45C145 30 155 40 160 45" stroke="white" stroke-width="6" stroke-linecap="round"/>
+</svg> 

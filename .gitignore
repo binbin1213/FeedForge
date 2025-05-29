@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Flask
+instance/
+.webassets-cache
+
+# 日志文件
+logs/
+*.log
+
+# RSS文件
+rss/*.xml
+output/*.xml
+
+# 临时文件
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 项目生成的数据文件
+*.xml
+*.db
+data/
+
+# 本地配置文件
+local_settings.py
+*.env
+.env
+
+# 临时文件
+tmp/
+temp/
+
+# 个人笔记文件
+rss.txt 

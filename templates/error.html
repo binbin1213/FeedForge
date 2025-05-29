@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}错误 - FeedForge (飞阅){% endblock %}
+
+{% block styles %}
+<style>
+    .error-container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .error-icon {
+        font-size: 60px;
+        color: #dc3545;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+    .error-icon img {
+        width: 64px;
+        height: 64px;
+        opacity: 0.7;
+    }
+    .error-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #343a40;
+    }
+    .error-message {
+        color: #6c757d;
+        margin-bottom: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-icon">
+        <img src="/static/img/logo.svg" alt="FeedForge Logo" class="error-logo">
+    </div>
+    <h1 class="error-title">出错了</h1>
+    <p class="error-message">{{ message }}</p>
+    <a href="/" class="btn btn-primary">返回首页</a>
+</div>
+{% endblock %} 

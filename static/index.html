@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSS生成器</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .guide {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">生成新RSS订阅</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="url" class="form-label">网站URL:</label>
+                            <input type="text" class="form-control" id="url" placeholder="https://example.com">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="selector" class="form-label">CSS选择器:</label>
+                            <input type="text" class="form-control" id="selector" placeholder="例如: .article h2">
+                            <div class="form-text mt-1">
+                                <a href="/selector_helper" class="text-primary">使用选择器助手工具 »</a> 帮助您找到正确的选择器
+                            </div>
+                        </div>
+                        
+                        <button id="generate" class="btn btn-primary">生成RSS订阅</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">我的RSS订阅</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group" id="feed-list">
+                            <!-- 订阅列表将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>使用指南</h5>
+            </div>
+            <div class="card-body">
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item">打开浏览器开发者工具 (F12或右键检查)</li>
+                    <li class="list-group-item">使用元素选择工具(左上角箭头图标)</li>
+                    <li class="list-group-item">点击页面上的文章标题或内容</li>
+                    <li class="list-group-item">右键选中的元素 → 复制 → 复制选择器</li>
+                    <li class="list-group-item">将选择器粘贴到上方输入框中</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 从数据库加载订阅列表
+        function loadFeeds() {
+            fetch('/feeds')
+                .then(response => response.json())
+                .then(feeds => {
+                    const feedList = document.getElementById('feed-list');
+                    feedList.innerHTML = '';
+                    
+                    feeds.forEach(feed => {
+                        const feedItem = document.createElement('div');
+                        feedItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        feedItem.innerHTML = `
+                            <div>
+                                <h6>${new URL(feed.url).hostname}</h6>
+                                <small class="text-muted">${feed.url}</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-danger me-2 delete-btn" data-id="${feed.id}">删除</button>
+                                <a href="${feed.filename}" class="btn btn-sm btn-outline-success" download>下载</a>
+                            </div>
+                        `;
+                        feedList.appendChild(feedItem);
+                    });
+                    
+                    // 添加删除按钮事件
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const id = parseInt(this.getAttribute('data-id'));
+                            deleteFeed(id);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error loading feeds:', error));
+        }
+        
+        // 删除订阅
+        function deleteFeed(id) {
+            fetch(`/feeds/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    loadFeeds();
+                }
+            })
+            .catch(error => console.error('Error deleting feed:', error));
+        }
+        
+        // 添加新订阅
+        function addFeed(url, selector, file) {
+            loadFeeds(); // 数据库保存已在后端完成，这里只需刷新列表
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFeeds();
+            
+            document.getElementById('generate').addEventListener('click', function() {
+                const url = document.getElementById('url').value;
+                const selector = document.getElementById('selector').value;
+                
+                if (!url) {
+                    alert('请输入网站URL');
+                    return;
+                }
+                
+                // 生成唯一的文件名
+                const filename = `rss_${Date.now()}.xml`;
+                
+                // 调用后端API生成RSS
+        fetch('/generate_rss', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                url,
+                selector,
+                output_file: filename
+            })
+        })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('生成失败: ' + data.error);
+                    } else {
+                        addFeed(url, selector, filename);
+                        alert('RSS订阅生成成功！');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('生成RSS订阅时出错');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
