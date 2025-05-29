@@ -219,14 +219,14 @@ def generate_rss():
             app.logger.info(f"强制更新了已存在的RSS订阅: {url}")
         else:
             # 创建新订阅
-            cursor.execute(
+        cursor.execute(
                 '''INSERT INTO feeds 
                    (url, selector, filename, title, description, article_count, last_article_title, created_at, updated_at) 
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                 (url, selector, output_file, feed_title, feed_description, 
                  article_count, last_article_title, current_time, current_time)
-            )
-            db.commit()
+        )
+        db.commit()
             app.logger.info(f"创建了新的RSS订阅: {url}")
         
         return jsonify({
@@ -266,8 +266,8 @@ def delete_feed(feed_id):
             # 如果不是DELETE方法也不是模拟的DELETE，则返回错误
             return jsonify({'error': '不支持的请求方法'}), 405
             
-        db = get_db()
-        cursor = db.cursor()
+    db = get_db()
+    cursor = db.cursor()
         
         # 获取文件名
         cursor.execute('SELECT filename FROM feeds WHERE id = ?', (feed_id,))
@@ -279,8 +279,8 @@ def delete_feed(feed_id):
         filename = result[0]
         
         # 删除数据库记录
-        cursor.execute('DELETE FROM feeds WHERE id = ?', (feed_id,))
-        db.commit()
+    cursor.execute('DELETE FROM feeds WHERE id = ?', (feed_id,))
+    db.commit()
         
         # 尝试删除文件
         try:

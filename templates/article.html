@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title }} - FeedForge (飞阅){% endblock %}
 
 {% block styles %}
 <style>
@@ -9,92 +9,188 @@
         margin: 0 auto;
         background-color: white;
         padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
     }
+    
     .article-header {
         margin-bottom: 30px;
         padding-bottom: 20px;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--border-color);
     }
+    
     .article-title {
         font-size: 2rem;
         margin-bottom: 15px;
-        color: #212529;
+        color: var(--dark-color);
+        font-weight: 600;
+        line-height: 1.4;
     }
+    
     .article-meta {
-        color: #6c757d;
+        color: var(--text-muted);
         font-size: 0.9rem;
         margin-bottom: 15px;
+        display: flex;
+        align-items: center;
     }
+    
+    .article-meta i {
+        color: var(--accent-color);
+        margin-right: 8px;
+    }
+    
+    .article-meta a {
+        color: var(--accent-color);
+        text-decoration: none;
+    }
+    
+    .article-meta a:hover {
+        text-decoration: underline;
+    }
+    
     .article-content {
         font-size: 1.1rem;
         line-height: 1.8;
+        color: var(--dark-color);
     }
+    
     .article-content img {
         max-width: 100%;
         height: auto;
         margin: 20px 0;
-        border-radius: 5px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
     }
+    
     .article-content p {
         margin-bottom: 1.5rem;
     }
+    
     .article-content h1, .article-content h2, .article-content h3, 
     .article-content h4, .article-content h5, .article-content h6 {
         margin-top: 2rem;
         margin-bottom: 1rem;
-        color: #212529;
+        color: var(--dark-color);
+        font-weight: 600;
     }
+    
     .article-content a {
-        color: #0d6efd;
+        color: var(--accent-color);
         text-decoration: none;
     }
+    
     .article-content a:hover {
         text-decoration: underline;
     }
+    
     .article-content blockquote {
-        border-left: 4px solid #ced4da;
-        padding-left: 1rem;
-        color: #6c757d;
+        border-left: 4px solid var(--primary-color);
+        padding-left: 1.5rem;
+        padding-right: 1rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        color: var(--text-muted);
         font-style: italic;
         margin: 1.5rem 0;
+        background-color: var(--primary-light);
+        border-radius: 0 8px 8px 0;
     }
+    
     .article-content code {
-        background-color: #f8f9fa;
+        background-color: var(--light-color);
         padding: 0.2rem 0.4rem;
-        border-radius: 3px;
+        border-radius: 4px;
         font-family: monospace;
+        border: 1px solid var(--border-color);
+        font-size: 0.9em;
     }
+    
     .article-content pre {
-        background-color: #f8f9fa;
+        background-color: var(--light-color);
         padding: 1rem;
-        border-radius: 5px;
+        border-radius: 8px;
         overflow-x: auto;
         margin: 1.5rem 0;
+        border: 1px solid var(--border-color);
     }
-    .back-btn {
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        color: var(--dark-color);
+        text-decoration: none;
         margin-bottom: 20px;
+        background-color: var(--light-color);
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s;
     }
+    
+    .back-link:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+    
+    .back-link i {
+        margin-right: 8px;
+    }
+    
     .actions-bar {
         display: flex;
         justify-content: space-between;
         margin: 30px 0;
         padding-top: 20px;
-        border-top: 1px solid #dee2e6;
+        border-top: 1px solid var(--border-color);
     }
+    
+    .btn-action {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 8px 16px;
+    }
+    
+    .btn-action i {
+        margin-right: 8px;
+    }
+    
     /* 黑暗模式切换 */
+    .mode-toggle {
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background-color: var(--light-color);
+        border: 1px solid var(--border-color);
+        color: var(--dark-color);
+        transition: all var(--transition-speed);
+    }
+    
+    .mode-toggle:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+    
+    /* 黑暗模式样式 */
     body.dark-mode {
         background-color: #212529;
         color: #e9ecef;
     }
+    
     body.dark-mode .article-container {
         background-color: #343a40;
         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
+    
     body.dark-mode .article-title {
         color: #f8f9fa;
     }
+    
     body.dark-mode .article-content h1, 
     body.dark-mode .article-content h2, 
     body.dark-mode .article-content h3, 
@@ -103,46 +199,79 @@
     body.dark-mode .article-content h6 {
         color: #f8f9fa;
     }
+    
+    body.dark-mode .article-content {
+        color: #e9ecef;
+    }
+    
     body.dark-mode .article-content a {
         color: #6ea8fe;
     }
+    
     body.dark-mode .article-content code,
     body.dark-mode .article-content pre {
         background-color: #495057;
         color: #e9ecef;
+        border-color: #6c757d;
     }
-    .mode-toggle {
-        cursor: pointer;
-        padding: 8px 12px;
-        border-radius: 4px;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
+    
+    body.dark-mode .back-link {
+        background-color: #495057;
+        color: #e9ecef;
+    }
+    
+    body.dark-mode .back-link:hover {
+        background-color: rgba(242, 101, 34, 0.3);
+        color: #F26522;
+    }
+    
+    body.dark-mode .mode-toggle {
+        background-color: #495057;
+        color: #e9ecef;
+        border-color: #6c757d;
+    }
+    
+    body.dark-mode .mode-toggle:hover {
+        background-color: rgba(242, 101, 34, 0.3);
+        color: #F26522;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .article-container {
+            padding: 20px 15px;
+        }
+        
+        .article-title {
+            font-size: 1.6rem;
+        }
+        
+        .actions-bar {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="back-btn">
-    <a href="javascript:history.back()" class="btn btn-outline-secondary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-        </svg>
-        返回文章列表
-    </a>
-</div>
+<a href="javascript:history.back()" class="back-link">
+    <i class="bi bi-arrow-left"></i> 返回文章列表
+</a>
 
 <div class="article-container">
     <div class="article-header">
         <h1 class="article-title">{{ title }}</h1>
         <div class="article-meta">
-            原文链接: <a href="{{ source_url }}" target="_blank">{{ source_url }}</a>
+            <i class="bi bi-globe"></i> 原文链接: <a href="{{ source_url }}" target="_blank">{{ source_url }}</a>
         </div>
-        <button id="darkModeToggle" class="btn btn-outline-secondary mode-toggle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars" viewBox="0 0 16 16">
-                <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
-                <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-            </svg>
+        <button id="darkModeToggle" class="mode-toggle">
+            <i class="bi bi-moon-stars"></i>
             <span id="modeText">夜间模式</span>
         </button>
     </div>
@@ -152,18 +281,11 @@
     </div>
     
     <div class="actions-bar">
-        <a href="javascript:history.back()" class="btn btn-outline-secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-            </svg>
-            返回文章列表
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-action">
+            <i class="bi bi-arrow-left"></i> 返回文章列表
         </a>
-        <a href="{{ source_url }}" target="_blank" class="btn btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
-                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
-            </svg>
-            在原网站查看
+        <a href="{{ source_url }}" target="_blank" class="btn btn-primary btn-action">
+            <i class="bi bi-box-arrow-up-right"></i> 在原网站查看
         </a>
     </div>
 </div>
