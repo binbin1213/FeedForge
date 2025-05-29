@@ -17,52 +17,155 @@
     <meta name="theme-color" content="#F26522">
     
     <style>
+        :root {
+            --primary-color: #F26522;
+            --primary-light: rgba(242, 101, 34, 0.1);
+            --accent-color: #3C7BB0;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-muted: #6c757d;
+            --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --transition-speed: 0.3s;
+        }
+        
         body {
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            padding-top: 60px;
+            padding-top: 70px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            background-color: #f9f9f9;
+            color: var(--dark-color);
         }
+        
         .main-content {
             flex: 1;
-            padding: 20px 0;
+            padding: 25px 0;
         }
+        
+        /* 导航栏样式 */
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white !important;
+            padding: 10px 0;
+        }
+        
         .navbar-brand {
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            color: var(--primary-color) !important;
         }
+        
         .navbar-brand img {
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
         }
+        
         .nav-item {
             margin: 0 5px;
         }
+        
         .nav-link {
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .nav-link:hover {
-            background-color: rgba(0,0,0,0.05);
-        }
-        .nav-link.active {
-            background-color: rgba(13,110,253,0.1);
-            color: #0d6efd;
+            border-radius: 6px;
+            transition: all var(--transition-speed);
+            padding: 8px 12px;
+            color: var(--dark-color) !important;
             font-weight: 500;
+            position: relative;
         }
+        
+        .nav-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color) !important;
+            font-weight: 600;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+        
         .nav-link i {
             margin-right: 5px;
         }
+        
+        /* 页脚样式 */
         footer {
-            padding: 20px 0;
-            background-color: #f8f9fa;
-            border-top: 1px solid #e9ecef;
+            padding: 25px 0;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
             text-align: center;
-            color: #6c757d;
+            color: var(--text-muted);
             font-size: 0.9rem;
+            margin-top: 30px;
+        }
+        
+        /* 通用卡片样式 */
+        .card {
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            background-color: white;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* 通用按钮样式 */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #e05a1a;
+            border-color: #e05a1a;
+        }
+        
+        .btn-success {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .btn-success:hover, .btn-success:focus {
+            background-color: #306b9b;
+            border-color: #306b9b;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 65px;
+            }
+            
+            .main-content {
+                padding: 15px 0;
+            }
+            
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
         }
     </style>
     
@@ -70,11 +173,11 @@
 </head>
 <body>
     <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="/">
                 <img src="/static/img/logo.svg" alt="FeedForge Logo">
-                FeedForge
+                FeedForge <span class="d-none d-md-inline">飞阅</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -97,6 +200,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if '/notification_settings' in active_page %}active{% endif %}" href="/notification_settings">
+                            <i class="bi bi-bell"></i> 通知设置
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="https://github.com/binbin1213/FeedForge" target="_blank">
                             <i class="bi bi-github"></i> GitHub
                         </a>
@@ -116,7 +224,7 @@
     <!-- 页脚 -->
     <footer>
         <div class="container">
-            <p>FeedForge (飞阅) &copy; 2023 | 一个简单易用的RSS订阅生成工具</p>
+            <p><img src="/static/img/logo.svg" alt="FeedForge Logo" width="20" height="20" class="me-1"> FeedForge (飞阅) &copy; 2023 | 一个简单易用的RSS订阅生成工具</p>
         </div>
     </footer>
 

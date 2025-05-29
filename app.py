@@ -7,14 +7,25 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, quote_plus, unquote, urljoin
 import xml.etree.ElementTree as ET
 import html
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging_config import setup_logging
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+import atexit
+import re
 
 app = Flask(__name__)
 DATABASE = 'rss_feeds.db'
 
 # 设置日志系统
 setup_logging(app)
+
+# 创建调度器
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+# 注册应用关闭时的清理函数
+atexit.register(lambda: scheduler.shutdown())
 
 # 添加上下文处理器，用于导航栏高亮
 @app.context_processor
@@ -44,33 +55,179 @@ def init_db():
                     url TEXT NOT NULL,
                     selector TEXT,
                     filename TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    title TEXT,
+                    description TEXT,
+                    article_count INTEGER DEFAULT 0,
+                    last_article_title TEXT,
+                    created_at TIMESTAMP,
+                    updated_at TIMESTAMP,
+                    auto_update BOOLEAN DEFAULT 0,
+                    update_frequency INTEGER DEFAULT 24,
+                    last_check_time TIMESTAMP
                 )
             ''')
+            # 设置默认时间戳
+            cursor.execute("UPDATE feeds SET created_at = datetime('now') WHERE created_at IS NULL")
+            cursor.execute("UPDATE feeds SET updated_at = datetime('now') WHERE updated_at IS NULL")
             db.commit()
+
+def upgrade_db():
+    """检查并升级数据库结构"""
+    try:
+        with app.app_context():
+            db = get_db()
+            cursor = db.cursor()
+            
+            # 检查是否需要添加新列
+            cursor.execute("PRAGMA table_info(feeds)")
+            columns = [column[1] for column in cursor.fetchall()]
+            
+            # 添加缺失的列
+            if 'title' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN title TEXT')
+            
+            if 'description' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN description TEXT')
+                
+            if 'article_count' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN article_count INTEGER DEFAULT 0')
+                
+            if 'last_article_title' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN last_article_title TEXT')
+                
+            if 'created_at' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN created_at TIMESTAMP')
+                # 设置现有记录的created_at为当前时间
+                cursor.execute("UPDATE feeds SET created_at = datetime('now') WHERE created_at IS NULL")
+                
+            # 添加定时更新相关字段
+            if 'auto_update' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN auto_update BOOLEAN DEFAULT 0')
+                
+            if 'update_frequency' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN update_frequency INTEGER DEFAULT 24')
+                
+            if 'last_check_time' not in columns:
+                cursor.execute('ALTER TABLE feeds ADD COLUMN last_check_time TIMESTAMP')
+            
+            db.commit()
+            app.logger.info("数据库结构已检查/升级")
+    except Exception as e:
+        app.logger.error(f"升级数据库失败: {e}")
 
 @app.route('/generate_rss', methods=['POST'])
 def generate_rss():
     data = request.get_json()
     url = data['url']
     selector = data.get('selector', '')
-    output_file = data['output_file']
+    
+    # 先使用域名作为临时文件名
+    domain = urlparse(url).netloc
+    domain_clean = re.sub(r'[^\w\-]', '_', domain)
+    timestamp = datetime.now().strftime('%Y%m%d')
+    temp_filename = f"{domain_clean}_{timestamp}.xml"
+    
     max_pages = data.get('max_pages', 3)  # 默认抓取3页
+    force_update = data.get('force_update', False)  # 是否强制更新
     
     try:
-        result = rss_generator.generate_rss(url, selector, output_file, max_pages)
+        # 检查数据库中是否已存在相同URL的订阅
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('SELECT id, filename, selector FROM feeds WHERE url = ?', (url,))
+        existing_feed = cursor.fetchone()
+        
+        if existing_feed and not force_update:
+            # 如果已存在且不强制更新，返回已存在的信息
+            feed_id, existing_filename, existing_selector = existing_feed
+            rss_url = url_for('serve_rss', filename=existing_filename, _external=True)
+            
+            # 如果选择器不同，更新选择器
+            if selector and selector != existing_selector:
+                cursor.execute('UPDATE feeds SET selector = ? WHERE id = ?', (selector, feed_id))
+                db.commit()
+                app.logger.info(f"更新了已存在订阅的选择器: {url}")
+            
+            return jsonify({
+                'status': 'exists',
+                'message': '该URL已存在RSS订阅',
+                'feed_id': feed_id,
+                'rss_url': rss_url
+            })
+        
+        # 如果不存在或强制更新，则生成新的RSS
+        result = rss_generator.generate_rss(url, selector, temp_filename, max_pages)
+        
+        # 从生成的RSS文件中提取标题中的中文部分作为文件名
+        feed_title = extract_feed_title(temp_filename) or ""
+        
+        # 提取标题中的中文部分
+        chinese_title = ""
+        if feed_title:
+            # 使用正则表达式匹配中文字符
+            chinese_match = re.search(r'[\u4e00-\u9fff_]+', feed_title)
+            if chinese_match:
+                chinese_title = chinese_match.group()
+        
+        # 如果成功提取到中文标题，使用它作为文件名，否则使用域名
+        if chinese_title:
+            # 清理标题，去除不适合作为文件名的字符
+            clean_title = re.sub(r'[^\w\u4e00-\u9fff\-]', '_', chinese_title)
+            output_file = f"{clean_title}_{timestamp}.xml"
+            
+            # 确保rss_files目录存在
+            rss_dir = os.path.join(os.getcwd(), 'rss_files')
+            os.makedirs(rss_dir, exist_ok=True)
+            
+            # 重命名文件
+            old_path = os.path.join(rss_dir, temp_filename)
+            new_path = os.path.join(rss_dir, output_file)
+            
+            if os.path.exists(old_path):
+                os.rename(old_path, new_path)
+                app.logger.info(f"文件已重命名: {temp_filename} -> {output_file}")
+        else:
+            output_file = temp_filename
         
         # 生成RSS订阅链接
         rss_url = url_for('serve_rss', filename=output_file, _external=True)
         
-        # 保存到数据库
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute(
-            'INSERT INTO feeds (url, selector, filename) VALUES (?, ?, ?)',
-            (url, selector, output_file)
-        )
-        db.commit()
+        # 使用当前日期时间，格式为YYYY-MM-DD HH:MM:SS
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # 获取RSS标题和描述
+        feed_description = ""  # 可以从RSS文件中提取，但我们已经将其设为空
+        
+        # 获取文章数量和最新文章标题
+        article_count = result['articles_count']
+        last_article_title = ""
+        if result.get('articles') and len(result['articles']) > 0:
+            last_article_title = result['articles'][0].get('title', '')
+        
+        if existing_feed and force_update:
+            # 如果强制更新已存在的订阅
+            feed_id = existing_feed[0]
+            cursor.execute(
+                '''UPDATE feeds SET 
+                   selector = ?, filename = ?, title = ?, description = ?, 
+                   article_count = ?, last_article_title = ?, updated_at = ? 
+                   WHERE id = ?''',
+                (selector, output_file, feed_title, feed_description, 
+                 article_count, last_article_title, current_time, feed_id)
+            )
+            db.commit()
+            app.logger.info(f"强制更新了已存在的RSS订阅: {url}")
+        else:
+            # 创建新订阅
+            cursor.execute(
+                '''INSERT INTO feeds 
+                   (url, selector, filename, title, description, article_count, last_article_title, created_at, updated_at) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                (url, selector, output_file, feed_title, feed_description, 
+                 article_count, last_article_title, current_time, current_time)
+            )
+            db.commit()
+            app.logger.info(f"创建了新的RSS订阅: {url}")
         
         return jsonify({
             'status': 'success', 
@@ -80,26 +237,35 @@ def generate_rss():
             'rss_url': rss_url
         })
     except Exception as e:
+        app.logger.error(f"生成RSS失败: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/feeds', methods=['GET'])
 def get_feeds():
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM feeds ORDER BY created_at DESC')
+    cursor.execute('SELECT * FROM feeds ORDER BY updated_at DESC')
     feeds = cursor.fetchall()
     return jsonify([{
         'id': row[0],
         'url': row[1],
         'selector': row[2],
         'filename': row[3],
-        'created_at': row[4]
+        'updated_at': row[4]
     } for row in feeds])
 
 @app.route('/feeds/<int:feed_id>', methods=['POST', 'DELETE'])
 def delete_feed(feed_id):
     """删除RSS订阅"""
     try:
+        # 检查是否是表单中的_method=DELETE
+        if request.method == 'POST' and request.form.get('_method') == 'DELETE':
+            # 继续处理删除操作
+            pass
+        elif request.method != 'DELETE':
+            # 如果不是DELETE方法也不是模拟的DELETE，则返回错误
+            return jsonify({'error': '不支持的请求方法'}), 405
+            
         db = get_db()
         cursor = db.cursor()
         
@@ -131,6 +297,45 @@ def delete_feed(feed_id):
         app.logger.error(f"删除RSS订阅失败: {e}")
         return jsonify({'error': str(e)}), 500
 
+def extract_domain_name(url):
+    """从URL中提取域名"""
+    try:
+        from urllib.parse import urlparse
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc
+        # 移除www.前缀
+        if domain.startswith('www.'):
+            domain = domain[4:]
+        return domain
+    except:
+        return url
+
+def extract_feed_title(filename):
+    """从RSS文件中提取频道标题"""
+    try:
+        import xml.etree.ElementTree as ET
+        file_path = os.path.join(os.getcwd(), filename)
+        if not os.path.exists(file_path):
+            return None
+            
+        # 解析XML文件
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        
+        # 获取频道信息
+        channel = root.find('channel')
+        if not channel:
+            return None
+            
+        title_elem = channel.find('title')
+        if title_elem is not None and title_elem.text:
+            return title_elem.text
+        
+        return None
+    except Exception as e:
+        app.logger.warning(f"提取RSS标题失败: {e}")
+        return None
+
 @app.route('/subscription-list')
 def subscription_list():
     """订阅列表页面"""
@@ -138,21 +343,74 @@ def subscription_list():
         # 获取所有RSS订阅
         db = get_db()
         cursor = db.cursor()
-        cursor.execute('SELECT * FROM feeds ORDER BY created_at DESC')
+        cursor.execute('SELECT * FROM feeds ORDER BY updated_at DESC')
         feeds = cursor.fetchall()
         
         # 格式化数据
         feeds_list = []
         for feed in feeds:
-            feed_id, source_url, selector, filename, created_at = feed
+            # 只提取需要的字段，忽略其他字段
+            feed_id = feed[0]
+            source_url = feed[1]
+            selector = feed[2]
+            filename = feed[3]
+            title = feed[4] if len(feed) > 4 else None
+            description = feed[5] if len(feed) > 5 else None
+            article_count = feed[6] if len(feed) > 6 else 0
+            last_article_title = feed[7] if len(feed) > 7 else None
+            created_at = feed[8] if len(feed) > 8 else None
+            updated_at = feed[9] if len(feed) > 9 else None
+            auto_update = feed[10] if len(feed) > 10 else 0
+            update_frequency = feed[11] if len(feed) > 11 else 24
+            last_check_time = feed[12] if len(feed) > 12 else None
+            
+            # 格式化日期时间显示
+            try:
+                if updated_at and len(updated_at) > 19:  # 可能包含毫秒或时区信息
+                    updated_at = updated_at[:19]  # 只保留YYYY-MM-DD HH:MM:SS部分
+            except:
+                pass  # 如果格式化失败，保持原样
+            
+            # 从文件名中提取ID部分
+            short_id = ''
+            try:
+                if 'rss_' in filename and '.xml' in filename:
+                    id_part = filename.split('rss_')[1].split('.xml')[0]
+                    short_id = id_part[-6:]  # 取最后6位数字
+            except:
+                short_id = filename  # 如果提取失败，使用完整文件名
+            
+            # 从RSS文件中获取频道标题
+            feed_title = extract_feed_title(filename)
+            
+            # 如果无法获取标题，回退到从URL提取域名
+            site_name = feed_title or extract_domain_name(source_url)
+                
             rss_url = url_for('serve_rss', filename=filename, _external=True)
+            
+            # 计算下次更新时间
+            next_update_time = None
+            if auto_update and last_check_time:
+                try:
+                    last_check = datetime.strptime(last_check_time, '%Y-%m-%d %H:%M:%S')
+                    next_update = last_check + timedelta(hours=update_frequency)
+                    next_update_time = next_update.strftime('%Y-%m-%d %H:%M:%S')
+                except Exception as e:
+                    app.logger.error(f"计算下次更新时间失败: {e}")
+            
             feeds_list.append({
                 'id': feed_id,
                 'source_url': source_url,
                 'selector': selector,
                 'filename': filename,
-                'created_at': created_at,
-                'rss_url': rss_url
+                'updated_at': updated_at,
+                'rss_url': rss_url,
+                'short_id': short_id,
+                'site_name': site_name,
+                'auto_update': bool(auto_update),
+                'update_frequency': update_frequency,
+                'last_check_time': last_check_time,
+                'next_update_time': next_update_time
             })
         
         return render_template('subscription_list.html', feeds=feeds_list)
@@ -165,21 +423,74 @@ def index():
     # 获取所有RSS订阅
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM feeds ORDER BY created_at DESC')
+    cursor.execute('SELECT * FROM feeds ORDER BY updated_at DESC')
     feeds = cursor.fetchall()
     
     # 格式化数据
     feeds_list = []
     for feed in feeds:
-        feed_id, source_url, selector, filename, created_at = feed
+        # 只提取需要的字段，忽略其他字段
+        feed_id = feed[0]
+        source_url = feed[1]
+        selector = feed[2]
+        filename = feed[3]
+        title = feed[4] if len(feed) > 4 else None
+        description = feed[5] if len(feed) > 5 else None
+        article_count = feed[6] if len(feed) > 6 else 0
+        last_article_title = feed[7] if len(feed) > 7 else None
+        created_at = feed[8] if len(feed) > 8 else None
+        updated_at = feed[9] if len(feed) > 9 else None
+        auto_update = feed[10] if len(feed) > 10 else 0
+        update_frequency = feed[11] if len(feed) > 11 else 24
+        last_check_time = feed[12] if len(feed) > 12 else None
+        
+        # 格式化日期时间显示
+        try:
+            if updated_at and len(updated_at) > 19:  # 可能包含毫秒或时区信息
+                updated_at = updated_at[:19]  # 只保留YYYY-MM-DD HH:MM:SS部分
+        except:
+            pass  # 如果格式化失败，保持原样
+        
+        # 从文件名中提取ID部分
+        short_id = ''
+        try:
+            if 'rss_' in filename and '.xml' in filename:
+                id_part = filename.split('rss_')[1].split('.xml')[0]
+                short_id = id_part[-6:]  # 取最后6位数字
+        except:
+            short_id = filename  # 如果提取失败，使用完整文件名
+        
+        # 从RSS文件中获取频道标题
+        feed_title = extract_feed_title(filename)
+        
+        # 如果无法获取标题，回退到从URL提取域名
+        site_name = feed_title or extract_domain_name(source_url)
+            
         rss_url = url_for('serve_rss', filename=filename, _external=True)
+        
+        # 计算下次更新时间
+        next_update_time = None
+        if auto_update and last_check_time:
+            try:
+                last_check = datetime.strptime(last_check_time, '%Y-%m-%d %H:%M:%S')
+                next_update = last_check + timedelta(hours=update_frequency)
+                next_update_time = next_update.strftime('%Y-%m-%d %H:%M:%S')
+            except Exception as e:
+                app.logger.error(f"计算下次更新时间失败: {e}")
+        
         feeds_list.append({
             'id': feed_id,
             'source_url': source_url,
             'selector': selector,
             'filename': filename,
-            'created_at': created_at,
-            'rss_url': rss_url
+            'updated_at': updated_at,
+            'rss_url': rss_url,
+            'short_id': short_id,
+            'site_name': site_name,
+            'auto_update': bool(auto_update),
+            'update_frequency': update_frequency,
+            'last_check_time': last_check_time,
+            'next_update_time': next_update_time
         })
     
     return render_template('index.html', feeds=feeds_list)
@@ -532,12 +843,23 @@ def test_selector():
 def serve_rss(filename):
     """提供RSS文件的访问"""
     try:
-        file_path = os.path.join(os.getcwd(), filename)
+        # 检查rss_files目录中是否存在该文件
+        rss_dir = os.path.join(os.getcwd(), 'rss_files')
+        file_path = os.path.join(rss_dir, filename)
+        
+        # 如果在新目录找不到，尝试在根目录查找（兼容旧文件）
         if not os.path.exists(file_path):
-            return jsonify({'error': '文件不存在'}), 404
+            old_path = os.path.join(os.getcwd(), filename)
+            if os.path.exists(old_path):
+                # 设置正确的Content-Type
+                response = send_from_directory(os.getcwd(), filename)
+                response.headers['Content-Type'] = 'application/xml; charset=utf-8'
+                return response
+            else:
+                return jsonify({'error': '文件不存在'}), 404
             
         # 设置正确的Content-Type
-        response = send_from_directory(os.getcwd(), filename)
+        response = send_from_directory(rss_dir, filename)
         response.headers['Content-Type'] = 'application/xml; charset=utf-8'
         return response
     except Exception as e:
@@ -557,7 +879,26 @@ def read_feed(feed_id):
         if not feed:
             return render_template('error.html', message='未找到该RSS订阅')
             
-        feed_id, source_url, selector, filename, created_at = feed
+        # 只提取需要的字段，忽略其他字段
+        feed_id = feed[0]
+        source_url = feed[1]
+        selector = feed[2]
+        filename = feed[3]
+        
+        # 从文件名中提取ID部分
+        short_id = ''
+        try:
+            if 'rss_' in filename and '.xml' in filename:
+                id_part = filename.split('rss_')[1].split('.xml')[0]
+                short_id = id_part[-6:]  # 取最后6位数字
+        except:
+            short_id = filename  # 如果提取失败，使用完整文件名
+        
+        # 从RSS文件中获取频道标题
+        feed_title = extract_feed_title(filename)
+        
+        # 如果无法获取标题，回退到从URL提取域名
+        site_name = feed_title or extract_domain_name(source_url)
         
         # 解析RSS文件
         file_path = os.path.join(os.getcwd(), filename)
@@ -605,6 +946,8 @@ def read_feed(feed_id):
             return render_template('read.html', 
                                   feed_id=feed_id,
                                   title=title, 
+                                  short_id=short_id,
+                                  site_name=site_name,
                                   link=link, 
                                   description=description, 
                                   items=items,
@@ -693,6 +1036,367 @@ def read_article():
         app.logger.error(f"获取文章失败: {e}")
         return render_template('error.html', message=f'获取文章失败: {str(e)}')
 
+@app.route('/update_feed/<int:feed_id>', methods=['POST'])
+def update_feed(feed_id):
+    """更新RSS订阅内容"""
+    try:
+        # 获取RSS订阅信息
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('SELECT * FROM feeds WHERE id = ?', (feed_id,))
+        feed = cursor.fetchone()
+        
+        if not feed:
+            return jsonify({'error': '未找到该RSS订阅'}), 404
+            
+        # 只提取需要的字段
+        feed_id = feed[0]
+        source_url = feed[1]
+        selector = feed[2]
+        old_filename = feed[3]
+        
+        # 生成临时文件名
+        domain = urlparse(source_url).netloc
+        domain_clean = re.sub(r'[^\w\-]', '_', domain)
+        timestamp = datetime.now().strftime('%Y%m%d')
+        temp_filename = f"{domain_clean}_{timestamp}.xml"
+        
+        # 重新生成RSS，使用增量更新模式
+        try:
+            max_pages = request.args.get('max_pages', 3, type=int)
+            force_full = request.args.get('force_full', False, type=bool)  # 是否强制全量更新
+            
+            # 调用RSS生成器，传入增量更新参数
+            result = rss_generator.generate_rss(
+                source_url, 
+                selector, 
+                temp_filename,  # 使用临时文件名
+                max_pages, 
+                incremental=not force_full  # 默认使用增量更新
+            )
+            
+            # 从生成的RSS文件中提取标题中的中文部分作为文件名
+            feed_title = extract_feed_title(temp_filename) or ""
+            
+            # 提取标题中的中文部分
+            chinese_title = ""
+            if feed_title:
+                # 使用正则表达式匹配中文字符
+                chinese_match = re.search(r'[\u4e00-\u9fff_]+', feed_title)
+                if chinese_match:
+                    chinese_title = chinese_match.group()
+            
+            # 如果成功提取到中文标题，使用它作为文件名，否则使用域名
+            if chinese_title:
+                # 清理标题，去除不适合作为文件名的字符
+                clean_title = re.sub(r'[^\w\u4e00-\u9fff\-]', '_', chinese_title)
+                new_filename = f"{clean_title}_{timestamp}.xml"
+                
+                # 确保rss_files目录存在
+                rss_dir = os.path.join(os.getcwd(), 'rss_files')
+                os.makedirs(rss_dir, exist_ok=True)
+                
+                # 重命名文件
+                old_path = os.path.join(rss_dir, temp_filename)
+                new_path = os.path.join(rss_dir, new_filename)
+                
+                if os.path.exists(old_path):
+                    os.rename(old_path, new_path)
+                    app.logger.info(f"文件已重命名: {temp_filename} -> {new_filename}")
+            else:
+                new_filename = temp_filename
+            
+            # 更新数据库信息
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
+            # 获取文章信息
+            article_count = result['articles_count']
+            new_articles_count = result.get('new_articles_count', 0)  # 新增的文章数量
+            
+            # 获取最新文章标题
+            last_article_title = ""
+            if result.get('articles') and len(result['articles']) > 0:
+                last_article_title = result['articles'][0].get('title', '')
+            
+            # 更新数据库
+            cursor.execute('''
+                UPDATE feeds 
+                SET filename = ?, updated_at = ?, title = ?, article_count = ?, last_article_title = ? 
+                WHERE id = ?
+            ''', (new_filename, current_time, feed_title, article_count, last_article_title, feed_id))
+            db.commit()
+            
+            # 尝试删除旧文件
+            try:
+                # 检查旧文件是否在根目录
+                old_file_path = os.path.join(os.getcwd(), old_filename)
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+                
+                # 检查旧文件是否在rss_files目录
+                old_file_path_in_dir = os.path.join(os.getcwd(), 'rss_files', old_filename)
+                if os.path.exists(old_file_path_in_dir):
+                    os.remove(old_file_path_in_dir)
+            except Exception as e:
+                app.logger.warning(f"删除旧文件失败: {e}")
+            
+            app.logger.info(f"更新RSS成功: ID={feed_id}, URL={source_url}, 共{article_count}篇文章, 新增{new_articles_count}篇")
+            
+            return jsonify({
+                'status': 'success', 
+                'message': 'RSS更新成功',
+                'articles_count': result['articles_count'],
+                'new_articles_count': new_articles_count,
+                'pages_processed': result['pages_processed']
+            })
+        except Exception as e:
+            app.logger.error(f"更新RSS失败: {e}")
+            return jsonify({'error': f'更新RSS失败: {str(e)}'}), 500
+            
+    except Exception as e:
+        app.logger.error(f"更新RSS订阅失败: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/set_auto_update/<int:feed_id>', methods=['POST'])
+def set_auto_update(feed_id):
+    """设置RSS源的自动更新参数"""
+    try:
+        data = request.get_json()
+        auto_update = data.get('auto_update', False)
+        update_frequency = data.get('update_frequency', 24)  # 默认24小时
+        
+        # 验证更新频率
+        if update_frequency < 1:
+            update_frequency = 1  # 最小1小时
+        elif update_frequency > 168:  # 一周
+            update_frequency = 168
+            
+        # 更新数据库
+        db = get_db()
+        cursor = db.cursor()
+        
+        # 检查RSS源是否存在
+        cursor.execute('SELECT * FROM feeds WHERE id = ?', (feed_id,))
+        feed = cursor.fetchone()
+        
+        if not feed:
+            return jsonify({'error': '未找到该RSS订阅'}), 404
+            
+        # 更新自动更新设置
+        cursor.execute(
+            'UPDATE feeds SET auto_update = ?, update_frequency = ? WHERE id = ?',
+            (1 if auto_update else 0, update_frequency, feed_id)
+        )
+        db.commit()
+        
+        # 如果开启了自动更新，更新last_check_time为当前时间
+        if auto_update:
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute(
+                'UPDATE feeds SET last_check_time = ? WHERE id = ?',
+                (current_time, feed_id)
+            )
+            db.commit()
+            
+        app.logger.info(f"设置RSS自动更新: ID={feed_id}, 自动更新={'开启' if auto_update else '关闭'}, 频率={update_frequency}小时")
+        
+        return jsonify({
+            'status': 'success',
+            'message': '自动更新设置已保存',
+            'auto_update': auto_update,
+            'update_frequency': update_frequency
+        })
+    except Exception as e:
+        app.logger.error(f"设置自动更新失败: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get_auto_update/<int:feed_id>', methods=['GET'])
+def get_auto_update(feed_id):
+    """获取RSS源的自动更新参数"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(
+            'SELECT auto_update, update_frequency, last_check_time FROM feeds WHERE id = ?', 
+            (feed_id,)
+        )
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({'error': '未找到该RSS订阅'}), 404
+            
+        auto_update, update_frequency, last_check_time = result
+        
+        # 计算下次更新时间
+        next_update_time = None
+        if auto_update and last_check_time:
+            try:
+                last_check = datetime.strptime(last_check_time, '%Y-%m-%d %H:%M:%S')
+                next_update = last_check + timedelta(hours=update_frequency)
+                next_update_time = next_update.strftime('%Y-%m-%d %H:%M:%S')
+            except Exception as e:
+                app.logger.error(f"计算下次更新时间失败: {e}")
+        
+        return jsonify({
+            'auto_update': bool(auto_update),
+            'update_frequency': update_frequency,
+            'last_check_time': last_check_time,
+            'next_update_time': next_update_time
+        })
+    except Exception as e:
+        app.logger.error(f"获取自动更新设置失败: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def check_feeds_for_updates():
+    """检查需要更新的RSS源并执行更新"""
+    app.logger.info("开始检查需要自动更新的RSS源")
+    with app.app_context():
+        try:
+            db = get_db()
+            cursor = db.cursor()
+            
+            # 获取所有启用了自动更新的订阅
+            cursor.execute(
+                '''SELECT id, url, selector, filename, update_frequency, last_check_time 
+                   FROM feeds WHERE auto_update = 1'''
+            )
+            feeds = cursor.fetchall()
+            
+            current_time = datetime.now()
+            updated_count = 0
+            
+            for feed in feeds:
+                feed_id, url, selector, filename, update_frequency, last_check_time = feed
+                
+                # 如果没有上次检查时间，或者已经到了更新时间
+                should_update = False
+                if not last_check_time:
+                    should_update = True
+                else:
+                    # 将字符串时间转换为datetime对象
+                    try:
+                        last_check = datetime.strptime(last_check_time, '%Y-%m-%d %H:%M:%S')
+                        # 计算下次更新时间
+                        next_update = last_check + timedelta(hours=update_frequency)
+                        if current_time >= next_update:
+                            should_update = True
+                    except Exception as e:
+                        app.logger.error(f"解析时间失败: {e}")
+                        should_update = True
+                
+                if should_update:
+                    app.logger.info(f"自动更新RSS源: ID={feed_id}, URL={url}")
+                    try:
+                        # 生成临时文件名
+                        domain = urlparse(url).netloc
+                        domain_clean = re.sub(r'[^\w\-]', '_', domain)
+                        timestamp = current_time.strftime('%Y%m%d')
+                        temp_filename = f"{domain_clean}_{timestamp}.xml"
+                        
+                        # 调用RSS生成器进行增量更新
+                        result = rss_generator.generate_rss(
+                            url, 
+                            selector, 
+                            temp_filename, 
+                            max_pages=3,  # 默认抓取3页
+                            incremental=True  # 使用增量更新
+                        )
+                        
+                        # 从生成的RSS文件中提取标题中的中文部分作为文件名
+                        feed_title = extract_feed_title(temp_filename) or ""
+                        
+                        # 提取标题中的中文部分
+                        chinese_title = ""
+                        if feed_title:
+                            # 使用正则表达式匹配中文字符
+                            chinese_match = re.search(r'[\u4e00-\u9fff_]+', feed_title)
+                            if chinese_match:
+                                chinese_title = chinese_match.group()
+                        
+                        # 如果成功提取到中文标题，使用它作为文件名，否则使用域名
+                        if chinese_title:
+                            # 清理标题，去除不适合作为文件名的字符
+                            clean_title = re.sub(r'[^\w\u4e00-\u9fff\-]', '_', chinese_title)
+                            new_filename = f"{clean_title}_{timestamp}.xml"
+                            
+                            # 确保rss_files目录存在
+                            rss_dir = os.path.join(os.getcwd(), 'rss_files')
+                            os.makedirs(rss_dir, exist_ok=True)
+                            
+                            # 重命名文件
+                            old_path = os.path.join(rss_dir, temp_filename)
+                            new_path = os.path.join(rss_dir, new_filename)
+                            
+                            if os.path.exists(old_path):
+                                os.rename(old_path, new_path)
+                                app.logger.info(f"文件已重命名: {temp_filename} -> {new_filename}")
+                        else:
+                            new_filename = temp_filename
+                        
+                        # 更新数据库信息
+                        current_time_str = current_time.strftime('%Y-%m-%d %H:%M:%S')
+                        
+                        # 获取文章信息
+                        article_count = result['articles_count']
+                        new_articles_count = result.get('new_articles_count', 0)
+                        
+                        # 获取最新文章标题
+                        last_article_title = ""
+                        if result.get('articles') and len(result['articles']) > 0:
+                            last_article_title = result['articles'][0].get('title', '')
+                        
+                        # 尝试删除旧文件
+                        try:
+                            # 检查旧文件是否在根目录
+                            old_file_path = os.path.join(os.getcwd(), filename)
+                            if os.path.exists(old_file_path):
+                                os.remove(old_file_path)
+                            
+                            # 检查旧文件是否在rss_files目录
+                            old_file_path_in_dir = os.path.join(os.getcwd(), 'rss_files', filename)
+                            if os.path.exists(old_file_path_in_dir):
+                                os.remove(old_file_path_in_dir)
+                        except Exception as e:
+                            app.logger.warning(f"删除旧文件失败: {e}")
+                        
+                        # 更新数据库
+                        cursor.execute(
+                            '''UPDATE feeds 
+                               SET updated_at = ?, last_check_time = ?, title = ?, 
+                                   article_count = ?, last_article_title = ?, filename = ? 
+                               WHERE id = ?''',
+                            (current_time_str, current_time_str, feed_title, 
+                             article_count, last_article_title, new_filename, feed_id)
+                        )
+                        db.commit()
+                        
+                        updated_count += 1
+                        app.logger.info(f"自动更新成功: ID={feed_id}, 新增{new_articles_count}篇文章")
+                    except Exception as e:
+                        app.logger.error(f"自动更新RSS源失败: ID={feed_id}, 错误: {e}")
+            
+            app.logger.info(f"自动更新检查完成，共更新了{updated_count}个RSS源")
+        except Exception as e:
+            app.logger.error(f"执行自动更新检查时出错: {e}")
+
+# 每小时检查一次需要更新的RSS源
+scheduler.add_job(
+    func=check_feeds_for_updates,
+    trigger=IntervalTrigger(minutes=60),
+    id='check_feeds_job',
+    name='每小时检查RSS源更新',
+    replace_existing=True
+)
+
 if __name__ == '__main__':
     init_db()
+    upgrade_db()  # 检查并升级现有数据库结构
+    
+    # 集成通知系统
+    try:
+        from notification_integration import integrate_notifications
+        integrate_notifications(app)
+    except ImportError:
+        app.logger.warning("通知系统未找到，通知功能将被禁用")
+    
     app.run(debug=True, host='0.0.0.0', port=8080)

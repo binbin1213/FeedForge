@@ -1,0 +1,41 @@
+{
+    "enabled": false,
+    "methods": {
+        "email": {
+            "enabled": false,
+            "smtp_server": "",
+            "smtp_port": 587,
+            "username": "",
+            "password": "",
+            "sender": "",
+            "recipients": []
+        },
+        "webhook": {
+            "enabled": false,
+            "url": "",
+            "custom_headers": {}
+        },
+        "desktop": {
+            "enabled": false
+        },
+        "telegram": {
+            "enabled": false,
+            "bot_token": "",
+            "chat_id": ""
+        },
+        "wechat": {
+            "enabled": false,
+            "corp_id": "",
+            "corp_secret": "",
+            "agent_id": "",
+            "to_user": "@all"
+        }
+    },
+    "notification_settings": {
+        "on_new_article": true,
+        "on_feed_error": true,
+        "min_articles_for_notification": 1,
+        "digest_mode": false,
+        "digest_interval": "daily"
+    }
+}

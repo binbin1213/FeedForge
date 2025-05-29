@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}通知设置{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">通知设置</h2>
+    
+    <form method="post" action="{{ url_for('notification_settings') }}">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">通知触发条件</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="notify_on_new" name="notify_on_new" {% if settings.notify_on_new %}checked{% endif %}>
+                    <label class="form-check-label" for="notify_on_new">
+                        有新文章时通知
+                    </label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="notify_on_error" name="notify_on_error" {% if settings.notify_on_error %}checked{% endif %}>
+                    <label class="form-check-label" for="notify_on_error">
+                        RSS源出错时通知
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 邮件通知设置 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">邮件通知</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="email_enabled" name="email_enabled" {% if settings.email_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="email_enabled">启用</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="email_to" class="form-label">接收邮箱</label>
+                    <input type="email" class="form-control" id="email_to" name="email_to" value="{{ settings.email_to or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="email_from" class="form-label">发送邮箱</label>
+                    <input type="email" class="form-control" id="email_from" name="email_from" value="{{ settings.email_from or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="email_smtp_server" class="form-label">SMTP服务器</label>
+                    <input type="text" class="form-control" id="email_smtp_server" name="email_smtp_server" value="{{ settings.email_smtp_server or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="email_smtp_port" class="form-label">SMTP端口</label>
+                    <input type="number" class="form-control" id="email_smtp_port" name="email_smtp_port" value="{{ settings.email_smtp_port or 587 }}">
+                </div>
+                <div class="mb-3">
+                    <label for="email_username" class="form-label">SMTP用户名</label>
+                    <input type="text" class="form-control" id="email_username" name="email_username" value="{{ settings.email_username or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="email_password" class="form-label">SMTP密码</label>
+                    <input type="password" class="form-control" id="email_password" name="email_password" value="{{ settings.email_password or '' }}">
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="email_use_ssl" name="email_use_ssl" {% if settings.email_use_ssl %}checked{% endif %}>
+                    <label class="form-check-label" for="email_use_ssl">
+                        使用SSL
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhook通知设置 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Webhook通知</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="webhook_enabled" name="webhook_enabled" {% if settings.webhook_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="webhook_enabled">启用</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="webhook_url" class="form-label">Webhook URL</label>
+                    <input type="url" class="form-control" id="webhook_url" name="webhook_url" value="{{ settings.webhook_url or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="webhook_method" class="form-label">请求方法</label>
+                    <select class="form-select" id="webhook_method" name="webhook_method">
+                        <option value="POST" {% if settings.webhook_method == 'POST' %}selected{% endif %}>POST</option>
+                        <option value="GET" {% if settings.webhook_method == 'GET' %}selected{% endif %}>GET</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 桌面通知设置 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">桌面通知</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="desktop_enabled" name="desktop_enabled" {% if settings.desktop_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="desktop_enabled">启用</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    桌面通知仅在应用程序运行期间有效，并需要系统支持。
+                </div>
+            </div>
+        </div>
+
+        <!-- Telegram通知设置 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Telegram通知</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="telegram_enabled" name="telegram_enabled" {% if settings.telegram_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="telegram_enabled">启用</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="telegram_bot_token" class="form-label">Bot Token</label>
+                    <input type="text" class="form-control" id="telegram_bot_token" name="telegram_bot_token" value="{{ settings.telegram_bot_token or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="telegram_chat_id" class="form-label">Chat ID</label>
+                    <input type="text" class="form-control" id="telegram_chat_id" name="telegram_chat_id" value="{{ settings.telegram_chat_id or '' }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- 企业微信通知设置 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">企业微信通知</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="wechat_work_enabled" name="wechat_work_enabled" {% if settings.wechat_work_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="wechat_work_enabled">启用</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="wechat_work_webhook" class="form-label">企业微信 Webhook URL</label>
+                    <input type="url" class="form-control" id="wechat_work_webhook" name="wechat_work_webhook" value="{{ settings.wechat_work_webhook or '' }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
+            <button type="submit" class="btn btn-primary">保存设置</button>
+        </div>
+    </form>
+</div>
+{% endblock %} 
