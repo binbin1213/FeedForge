@@ -1,6 +1,6 @@
 # FeedForge (飞阅)
 
-FeedForge (飞阅) 是一个轻量级Web应用，帮助用户为任何网站创建RSS订阅源，即使该网站本身不提供RSS功能。通过直观的界面和智能选择器，轻松将您喜爱的网站内容转换为标准RSS格式，方便在各类RSS阅读器中订阅。
+FeedForge (飞阅) 是一个轻量级Web应用，帮助用户为任何网站创建RSS订阅源，即使该网站本身不提供RSS功能。通过直观的界面和智能选择器，轻松将您喜爱的网站内容转换为标准RSS格式，方便在各类RSS阅读器中订阅。支持Docker部署，可以一键安装使用。
 
 ![FeedForge (飞阅)截图](screenshot.png)
 
@@ -16,6 +16,7 @@ FeedForge (飞阅) 是一个轻量级Web应用，帮助用户为任何网站创�
 - 📈 **更新统计**：显示新增文章数量，清晰了解更新内容
 - ⏱️ **定时更新**：支持自动定时更新，可自定义更新频率
 - 📣 **多渠道通知**：支持邮件、Webhook、桌面通知、Telegram和企业微信等多种通知方式
+- 🐳 **Docker支持**：提供官方Docker镜像和docker-compose配置，一键部署
 
 ## 安装指南
 
@@ -69,23 +70,80 @@ python app.py
 
 ### Docker部署
 
-如果您偏好使用Docker，我们也提供了容器化部署方案：
+FeedForge (飞阅) 提供了完整的Docker支持，您可以选择以下两种方式进行部署：
+
+#### 方式一：直接使用Docker Hub镜像（推荐）
+
+这是最简单的部署方式，直接使用我们预构建的官方镜像：
 
 1. 确保安装了Docker和Docker Compose
 
-2. 使用Docker Compose启动应用：
-
+2. 创建项目目录：
 ```bash
-docker-compose up -d
+mkdir -p FeedForge/{rss_files,rss_output,logs,docker_data}
+cd FeedForge
+```
+
+3. 下载docker-compose配置文件：
+```bash
+curl -O https://raw.githubusercontent.com/binbin1213/FeedForge/main/docker-compose.hub.yml
+```
+
+4. 启动容器：
+```bash
+docker-compose -f docker-compose.hub.yml up -d
+```
+
+5. 在浏览器中访问 http://localhost:8080
+
+6. 停止应用：
+```bash
+docker-compose -f docker-compose.hub.yml down
+```
+
+#### 方式二：从源代码构建Docker镜像
+
+如果您想自定义构建过程或修改代码，可以选择从源代码构建：
+
+1. 克隆仓库：
+```bash
+git clone https://github.com/binbin1213/FeedForge.git
+cd FeedForge
+```
+
+2. 使用Docker Compose构建并启动：
+```bash
+docker-compose up -d --build
 ```
 
 3. 在浏览器中访问 http://localhost:8080
 
 4. 停止应用：
-
 ```bash
 docker-compose down
 ```
+
+#### Docker数据持久化
+
+FeedForge (飞阅) 容器将以下目录挂载到宿主机，确保数据持久化：
+
+- `./rss_files`：存储生成的RSS源文件
+- `./rss_output`：存储输出文件
+- `./logs`：应用日志
+- `./docker_data/rss_feeds.db`：SQLite数据库文件
+
+您可以根据需要备份这些目录。
+
+#### Docker环境变量
+
+Docker部署支持以下环境变量配置：
+
+| 环境变量 | 说明 | 默认值 |
+|---------|------|-------|
+| TZ | 容器时区 | Asia/Shanghai |
+| PORT | 应用端口 | 8080 |
+
+可以在docker-compose.yml文件中的`environment`部分修改这些设置。
 
 ## 使用方法
 
@@ -188,8 +246,23 @@ FeedForge (飞阅) 内置了强大的通知系统，当RSS源有新文章或发�
 - **数据解析**：BeautifulSoup4, feedgen
 - **数据存储**：SQLite
 - **通知系统**：支持SMTP、HTTP、桌面通知、Telegram API和企业微信API
+- **容器化**：Docker, Docker Compose
+- **持续集成**：GitHub Actions
 
 ## 最近更新
+
+### 2025年7月更新
+
+1. **完整Docker支持**
+   - 添加Dockerfile和docker-compose配置
+   - 发布官方Docker Hub镜像
+   - 支持数据持久化和环境变量配置
+   - 提供多种部署方式，简化安装过程
+
+2. **生产环境优化**
+   - 改进数据库初始化机制
+   - 增强启动脚本，确保数据库表结构正确创建
+   - 优化容器内资源使用
 
 ### 2025年6月更新
 

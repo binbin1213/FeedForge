@@ -333,10 +333,26 @@
                     <div class="instruction-step">
                         <div class="step-number">2</div>
                         <div class="step-content">
-                            <h3>安装依赖</h3>
-                            <p>进入项目目录并安装所需依赖：</p>
+                            <h3>安装与运行</h3>
+                            <p><strong>方式一：使用Docker（推荐）</strong></p>
+                            <p>最简单的方法是使用我们的官方Docker镜像：</p>
+                            <div class="code-block">
+                                mkdir -p FeedForge/{rss_files,rss_output,logs,docker_data}<br>
+                                cd FeedForge<br>
+                                curl -O https://raw.githubusercontent.com/binbin1213/FeedForge/main/docker-compose.hub.yml<br>
+                                docker-compose -f docker-compose.hub.yml up -d
+                            </div>
+                            <p><strong>方式二：源代码安装</strong></p>
+                            <p>如果您希望从源代码安装，可以按照以下步骤操作：</p>
                             <div class="code-block">
                                 cd FeedForge<br>
+                                # 创建虚拟环境（可选但推荐）<br>
+                                python -m venv venv<br>
+                                # 在Windows上激活<br>
+                                venv\Scripts\activate<br>
+                                # 在macOS/Linux上激活<br>
+                                source venv/bin/activate<br>
+                                # 安装依赖<br>
                                 pip install -r requirements.txt
                             </div>
                         </div>
@@ -345,13 +361,10 @@
                         <div class="step-number">3</div>
                         <div class="step-content">
                             <h3>运行应用</h3>
-                            <p>启动Flask应用：</p>
+                            <p>如果您使用Docker，应用已经在运行了。</p>
+                            <p>如果您从源代码安装，启动Flask应用：</p>
                             <div class="code-block">
                                 python app.py
-                            </div>
-                            <p>或者使用Docker运行：</p>
-                            <div class="code-block">
-                                docker-compose up -d
                             </div>
                         </div>
                     </div>
@@ -359,18 +372,8 @@
                         <div class="step-number">4</div>
                         <div class="step-content">
                             <h3>访问Web界面</h3>
-                            <p>在浏览器中访问<code>http://localhost:5000</code>即可使用Web界面。</p>
+                            <p>在浏览器中访问<code>http://localhost:8080</code>即可使用Web界面。</p>
                             <p>使用"创建RSS"功能，输入网站URL，并借助可视化选择器工具选择您想要订阅的内容。</p>
-                        </div>
-                    </div>
-                    <div class="instruction-step">
-                        <div class="step-number">5</div>
-                        <div class="step-content">
-                            <h3>直接生成RSS</h3>
-                            <p>您也可以使用命令行直接生成RSS：</p>
-                            <div class="code-block">
-                                python rss_generator.py &lt;网站URL&gt; [CSS选择器] [输出文件名] [最大页数]
-                            </div>
                         </div>
                     </div>
                 </div>
