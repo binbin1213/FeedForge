@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}项目结构 - FeedForge{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">项目结构</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">项目概述</h2>
+        </div>
+        <div class="card-body">
+            <p>FeedForge是一个功能强大的RSS生成器，能够从不包含RSS的网站创建RSS订阅源。主要特点包括：</p>
+            <ul>
+                <li>从任何网站提取内容并生成标准RSS格式</li>
+                <li>支持多种选择器策略找到正确的内容</li>
+                <li>集成通知系统，支持多种通知方式</li>
+                <li>用户友好的Web界面</li>
+                <li>可视化选择器帮助工具</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">核心组件</h2>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h3 class="h5">核心文件</h3>
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>文件名</th>
+                            <th>描述</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>app.py</code></td>
+                            <td>Flask应用主文件，处理所有Web路由和请求</td>
+                        </tr>
+                        <tr>
+                            <td><code>rss_generator.py</code></td>
+                            <td>RSS生成核心逻辑，处理网页内容提取和RSS文件生成</td>
+                        </tr>
+                        <tr>
+                            <td><code>notification_system.py</code></td>
+                            <td>通知系统核心，处理各种通知方式的基础功能</td>
+                        </tr>
+                        <tr>
+                            <td><code>notification_integration.py</code></td>
+                            <td>通知系统集成模块，实现各种具体通知方式</td>
+                        </tr>
+                        <tr>
+                            <td><code>logging_config.py</code></td>
+                            <td>日志系统配置文件</td>
+                        </tr>
+                        <tr>
+                            <td><code>test_selector.py</code></td>
+                            <td>选择器测试工具，用于测试和调试CSS选择器</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="h5">目录结构</h3>
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>目录名</th>
+                            <th>描述</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>templates/</code></td>
+                            <td>HTML模板文件目录，包含所有Web界面模板</td>
+                        </tr>
+                        <tr>
+                            <td><code>static/</code></td>
+                            <td>静态资源目录，包含CSS、JavaScript、图片等</td>
+                        </tr>
+                        <tr>
+                            <td><code>logs/</code></td>
+                            <td>日志文件目录，存储应用运行日志</td>
+                        </tr>
+                        <tr>
+                            <td><code>rss_files/</code></td>
+                            <td>生成的RSS文件存储目录</td>
+                        </tr>
+                        <tr>
+                            <td><code>rss_output/</code></td>
+                            <td>RSS输出临时目录</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">依赖包</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>包名</th>
+                        <th>版本</th>
+                        <th>用途</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Flask</code></td>
+                        <td>2.0.1</td>
+                        <td>Web应用框架，提供路由和请求处理</td>
+                    </tr>
+                    <tr>
+                        <td><code>APScheduler</code></td>
+                        <td>3.9.1</td>
+                        <td>任务调度器，用于定时更新RSS</td>
+                    </tr>
+                    <tr>
+                        <td><code>requests</code></td>
+                        <td>2.28.1</td>
+                        <td>HTTP请求库，用于获取网页内容</td>
+                    </tr>
+                    <tr>
+                        <td><code>beautifulsoup4</code></td>
+                        <td>4.11.1</td>
+                        <td>HTML解析库，用于提取网页内容</td>
+                    </tr>
+                    <tr>
+                        <td><code>feedgen</code></td>
+                        <td>0.9.0</td>
+                        <td>RSS/Atom feed生成库</td>
+                    </tr>
+                    <tr>
+                        <td><code>selenium</code></td>
+                        <td>4.8.0</td>
+                        <td>浏览器自动化工具，用于处理动态加载内容</td>
+                    </tr>
+                    <tr>
+                        <td><code>lxml</code></td>
+                        <td>4.9.2</td>
+                        <td>XML/HTML处理库，提供高效解析</td>
+                    </tr>
+                    <tr>
+                        <td><code>python-dateutil</code></td>
+                        <td>2.8.2</td>
+                        <td>日期时间处理工具</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">功能模块</h2>
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="moduleAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            RSS生成模块
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#moduleAccordion">
+                        <div class="accordion-body">
+                            <p>负责从网页提取内容并生成RSS feed：</p>
+                            <ul>
+                                <li>支持多种选择器策略 (CSS, XPath)</li>
+                                <li>处理不同类型的网页结构</li>
+                                <li>支持动态加载内容的网页</li>
+                                <li>生成符合标准的RSS文件</li>
+                            </ul>
+                            <p>主要文件：<code>rss_generator.py</code></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Web界面模块
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#moduleAccordion">
+                        <div class="accordion-body">
+                            <p>提供用户友好的Web界面：</p>
+                            <ul>
+                                <li>添加和管理RSS订阅</li>
+                                <li>查看生成的文章</li>
+                                <li>配置通知设置</li>
+                                <li>可视化选择器帮助工具</li>
+                            </ul>
+                            <p>主要文件：<code>app.py</code>，<code>templates/</code>目录</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            通知系统模块
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#moduleAccordion">
+                        <div class="accordion-body">
+                            <p>管理多种通知方式：</p>
+                            <ul>
+                                <li>邮件通知</li>
+                                <li>Webhook通知</li>
+                                <li>桌面通知</li>
+                                <li>Telegram通知</li>
+                                <li>企业微信通知</li>
+                            </ul>
+                            <p>主要文件：<code>notification_system.py</code>，<code>notification_integration.py</code></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            选择器帮助工具
+                        </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#moduleAccordion">
+                        <div class="accordion-body">
+                            <p>帮助用户找到正确的选择器：</p>
+                            <ul>
+                                <li>可视化选择网页元素</li>
+                                <li>自动生成CSS选择器</li>
+                                <li>测试选择器有效性</li>
+                            </ul>
+                            <p>主要文件：<code>static/selector_helper.html</code>，<code>test_selector.py</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">部署选项</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h3 class="h5 mb-0">本地部署</h3>
+                        </div>
+                        <div class="card-body">
+                            <ol>
+                                <li>克隆仓库</li>
+                                <li>安装依赖：<code>pip install -r requirements.txt</code></li>
+                                <li>运行应用：<code>python app.py</code></li>
+                                <li>访问：<code>http://localhost:5000</code></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h3 class="h5 mb-0">Docker部署</h3>
+                        </div>
+                        <div class="card-body">
+                            <ol>
+                                <li>使用提供的Dockerfile构建镜像</li>
+                                <li>或使用docker-compose：<code>docker-compose up -d</code></li>
+                                <li>访问：<code>http://localhost:5000</code></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
