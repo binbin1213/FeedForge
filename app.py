@@ -314,9 +314,23 @@ def extract_feed_title(filename):
     """从RSS文件中提取频道标题"""
     try:
         import xml.etree.ElementTree as ET
+        
+        # 先检查完整路径
         file_path = os.path.join(os.getcwd(), filename)
+        
+        # 如果不存在，则检查rss_files目录
         if not os.path.exists(file_path):
-            return None
+            rss_dir = os.path.join(os.getcwd(), 'rss_files')
+            file_path = os.path.join(rss_dir, filename)
+            
+            # 如果仍然不存在，检查rss_output目录
+            if not os.path.exists(file_path):
+                rss_output_dir = os.path.join(os.getcwd(), 'rss_output')
+                file_path = os.path.join(rss_output_dir, filename)
+                
+                if not os.path.exists(file_path):
+                    app.logger.warning(f"找不到RSS文件: {filename}")
+                    return None
             
         # 解析XML文件
         tree = ET.parse(file_path)
@@ -889,6 +903,7 @@ def read_feed(feed_id):
         source_url = feed[1]
         selector = feed[2]
         filename = feed[3]
+        auto_update = feed[10] if len(feed) > 10 else 0
         
         # 从文件名中提取ID部分
         short_id = ''
@@ -956,7 +971,9 @@ def read_feed(feed_id):
                                   link=link, 
                                   description=description, 
                                   items=items,
-                                  source_url=source_url)
+                                  source_url=source_url,
+                                  auto_update=bool(auto_update),
+                                  selector=selector)
                                   
         except Exception as e:
             app.logger.error(f"解析RSS文件失败: {e}")
@@ -1405,4 +1422,4 @@ if __name__ == '__main__':
     except ImportError:
         app.logger.warning("通知系统未找到，通知功能将被禁用")
     
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8081)

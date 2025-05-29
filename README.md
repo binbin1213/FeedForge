@@ -1,5 +1,16 @@
 # FeedForge (飞阅)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/Flask-2.0.1-orange.svg)](https://flask.palletsprojects.com/)
+[![Docker](https://img.shields.io/badge/Docker-支持-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Website](https://img.shields.io/badge/网站-飞阅RSS生成器-ff69b4)](https://github.com/binbin1213/FeedForge)
+![Repo Size](https://img.shields.io/github/repo-size/binbin1213/FeedForge)
+![Release](https://img.shields.io/badge/版本-1.1.0-success)
+![Last Commit](https://img.shields.io/github/last-commit/binbin1213/FeedForge)
+![RSS](https://img.shields.io/badge/RSS-飞阅订阅-FFA500?logo=rss)
+
 FeedForge (飞阅) 是一个轻量级Web应用，帮助用户为任何网站创建RSS订阅源，即使该网站本身不提供RSS功能。通过直观的界面和智能选择器，轻松将您喜爱的网站内容转换为标准RSS格式，方便在各类RSS阅读器中订阅。支持Docker部署，可以一键安装使用。
 
 ![FeedForge (飞阅)截图](screenshot.png)
@@ -11,233 +22,51 @@ FeedForge (飞阅) 是一个轻量级Web应用，帮助用户为任何网站创�
 - 🔄 **分页支持**：自动识别和处理网站分页，获取更多内容
 - 📖 **内置阅读器**：直接在应用内阅读文章，支持夜间模式
 - 🔔 **订阅管理**：集中管理所有创建的RSS订阅源
-- 🔍 **URL重复检查**：自动检测已存在的订阅，避免重复创建
 - 📊 **增量更新**：智能识别新文章，只更新新内容，减少资源消耗
-- 📈 **更新统计**：显示新增文章数量，清晰了解更新内容
 - ⏱️ **定时更新**：支持自动定时更新，可自定义更新频率
 - 📣 **多渠道通知**：支持邮件、Webhook、桌面通知、Telegram和企业微信等多种通知方式
 - 🐳 **Docker支持**：提供官方Docker镜像和docker-compose配置，一键部署
 
-## 安装指南
+## 快速开始
 
-### 前提条件
-
-- Python 3.7+
-- pip (Python包管理器)
-
-### 安装步骤
-
-1. 克隆仓库到本地：
+### 方式一：使用Docker（推荐）
 
 ```bash
-git clone https://github.com/your-username/feedforge.git
-cd feedforge
-```
-
-2. 创建并激活虚拟环境（推荐）：
-
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
-```
-
-3. 安装依赖：
-
-```bash
-pip install -r requirements.txt
-```
-
-4. 安装可选依赖（用于通知系统）：
-
-```bash
-# 桌面通知支持（跨平台）
-pip install plyer==2.1.0
-
-# Windows桌面通知支持（仅Windows系统需要）
-pip install win10toast==0.9
-```
-
-5. 启动应用：
-
-```bash
-python app.py
-```
-
-6. 在浏览器中访问 http://localhost:8080 开始使用
-
-### Docker部署
-
-FeedForge (飞阅) 提供了完整的Docker支持，您可以选择以下两种方式进行部署：
-
-#### 方式一：直接使用Docker Hub镜像（推荐）
-
-这是最简单的部署方式，直接使用我们预构建的官方镜像：
-
-1. 确保安装了Docker和Docker Compose
-
-2. 创建项目目录：
-```bash
+# 创建项目目录
 mkdir -p FeedForge/{rss_files,rss_output,logs,docker_data}
 cd FeedForge
-```
 
-3. 下载docker-compose配置文件：
-```bash
+# 下载docker-compose配置文件
 curl -O https://raw.githubusercontent.com/binbin1213/FeedForge/main/docker-compose.hub.yml
-```
 
-4. 启动容器：
-```bash
+# 启动容器
 docker-compose -f docker-compose.hub.yml up -d
 ```
 
-5. 在浏览器中访问 http://localhost:8080
+### 方式二：从源码安装
 
-6. 停止应用：
 ```bash
-docker-compose -f docker-compose.hub.yml down
-```
-
-#### 方式二：从源代码构建Docker镜像
-
-如果您想自定义构建过程或修改代码，可以选择从源代码构建：
-
-1. 克隆仓库：
-```bash
+# 克隆仓库
 git clone https://github.com/binbin1213/FeedForge.git
 cd FeedForge
+
+# 创建并激活虚拟环境
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# 或 venv\Scripts\activate  # Windows
+
+# 安装依赖
+pip install -r requirements.txt
+
+# 启动应用
+python app.py
 ```
 
-2. 使用Docker Compose构建并启动：
-```bash
-docker-compose up -d --build
-```
+访问 http://localhost:8080 开始使用
 
-3. 在浏览器中访问 http://localhost:8080
+## 详细文档
 
-4. 停止应用：
-```bash
-docker-compose down
-```
-
-#### Docker数据持久化
-
-FeedForge (飞阅) 容器将以下目录挂载到宿主机，确保数据持久化：
-
-- `./rss_files`：存储生成的RSS源文件
-- `./rss_output`：存储输出文件
-- `./logs`：应用日志
-- `./docker_data/rss_feeds.db`：SQLite数据库文件
-
-您可以根据需要备份这些目录。
-
-#### Docker环境变量
-
-Docker部署支持以下环境变量配置：
-
-| 环境变量 | 说明 | 默认值 |
-|---------|------|-------|
-| TZ | 容器时区 | Asia/Shanghai |
-| PORT | 应用端口 | 8080 |
-
-可以在docker-compose.yml文件中的`environment`部分修改这些设置。
-
-## 使用方法
-
-### 创建新的RSS订阅
-
-1. 点击首页的"创建新RSS"按钮或导航栏中的"创建RSS"
-2. 在选择器助手页面，输入想要订阅的网站URL并加载
-3. 点击"开始选择"，然后在预览中点击代表文章的元素
-4. 系统会自动生成CSS选择器，点击"测试选择器"验证效果
-5. 填写输出文件名，点击"生成RSS"完成创建
-
-### 管理订阅
-
-- 在首页或"阅读订阅"页面查看所有创建的RSS订阅
-- 使用复制按钮获取RSS链接，添加到您喜欢的RSS阅读器
-- 点击"阅读"按钮直接在应用内浏览文章内容
-- 点击"更新订阅"按钮刷新RSS内容，系统会智能识别新文章
-- 更新完成后，系统会显示新增文章数量和总文章数量
-- 使用删除按钮移除不需要的订阅
-
-### 智能更新机制
-
-FeedForge (飞阅) 采用了先进的智能更新机制，提高效率并减少资源消耗：
-
-- **URL重复检查**：当您尝试添加已存在的网站URL时，系统会自动检测并提示，避免创建重复订阅
-- **增量更新**：更新RSS时，系统只会处理新发布的文章，保留已有内容，大大提高更新速度
-- **资源优化**：通过减少对目标网站的请求次数，降低服务器负载，同时减少被目标站点限制访问的风险
-- **历史保存**：即使原网站删除了旧文章，您的RSS订阅中仍然保留完整历史记录
-- **定时自动更新**：为每个订阅源设置独立的更新频率（1小时至1周），系统会在后台自动检查并更新内容，无需手动操作
-
-### 定时更新设置
-
-FeedForge (飞阅) 提供了灵活的定时更新选项：
-
-1. 在订阅详情页面，点击"定时更新设置"按钮
-2. 启用自动更新开关，并选择合适的更新频率
-3. 系统会显示上次检查时间和下次预计更新时间
-4. 保存设置后，系统会按照您设定的频率自动检查和更新内容
-5. 您可以随时修改更新频率或关闭自动更新
-
-### 通知系统
-
-FeedForge (飞阅) 内置了强大的通知系统，当RSS源有新文章或发生错误时，可通过多种方式通知您：
-
-#### 通知设置
-
-1. 点击导航栏中的"通知设置"或首页的通知设置入口
-2. 配置通知触发条件：
-   - 有新文章时通知
-   - RSS源出错时通知
-
-3. 选择并配置您需要的通知方式：
-
-   **邮件通知**
-   - 设置SMTP服务器、端口、用户名和密码
-   - 配置发送和接收邮箱地址
-   - 支持SSL加密连接
-
-   **Webhook通知**
-   - 设置Webhook URL和请求方法
-   - 可集成到各种支持Webhook的系统和服务
-
-   **桌面通知**
-   - 在应用运行期间，直接在桌面显示通知
-   - 支持Windows、macOS和Linux系统
-
-   **Telegram通知**
-   - 配置Bot Token和Chat ID
-   - 将通知直接发送到您的Telegram账号或群组
-
-   **企业微信通知**
-   - 设置企业微信Webhook URL
-   - 支持发送到企业微信群聊或个人
-
-4. 保存设置后，系统会根据您的配置自动发送通知
-
-#### 通知内容
-
-通知内容包括以下信息：
-
-- 事件类型（新文章、订阅错误等）
-- 订阅源名称
-- 新文章数量和标题列表（对于新文章通知）
-- 错误详情（对于错误通知）
-- 发生时间
-
-## 负责任使用说明
-
-本工具设计用于个人使用，请负责任地使用并注意以下事项：
-
-- **尊重网站规则**：请遵守目标网站的robots.txt规则和使用条款
-- **合理访问频率**：避免频繁请求同一网站，建议设置合理的更新间隔
-- **版权考虑**：RSS内容应仅用于个人阅读，请尊重原创作者的版权
-- **个人使用**：本工具设计用于个人订阅需求，不适合大规模数据采集
+更多详细的使用说明、功能介绍和配置指南，请访问我们的[在线文档](docs/index.html)。
 
 ## 技术实现
 
@@ -248,78 +77,6 @@ FeedForge (飞阅) 内置了强大的通知系统，当RSS源有新文章或发�
 - **通知系统**：支持SMTP、HTTP、桌面通知、Telegram API和企业微信API
 - **容器化**：Docker, Docker Compose
 - **持续集成**：GitHub Actions
-
-## 最近更新
-
-### 2025年7月更新
-
-1. **完整Docker支持**
-   - 添加Dockerfile和docker-compose配置
-   - 发布官方Docker Hub镜像
-   - 支持数据持久化和环境变量配置
-   - 提供多种部署方式，简化安装过程
-
-2. **生产环境优化**
-   - 改进数据库初始化机制
-   - 增强启动脚本，确保数据库表结构正确创建
-   - 优化容器内资源使用
-
-### 2025年6月更新
-
-1. **多渠道通知系统**
-   - 添加完整的通知系统架构，支持多种通知方式
-   - 邮件通知：通过SMTP发送电子邮件
-   - Webhook通知：支持自定义HTTP请求
-   - 桌面通知：在系统桌面显示通知消息
-   - Telegram通知：集成Telegram机器人API
-   - 企业微信通知：支持企业微信群聊和个人通知
-
-2. **通知设置界面**
-   - 提供直观的Web界面配置通知系统
-   - 支持测试各种通知方式
-   - 可单独启用或禁用不同通知渠道
-
-3. **通知触发机制**
-   - 新文章通知：当RSS源有新文章时发送通知
-   - 错误通知：当RSS源更新失败时发送错误信息
-   - 支持设置最小通知文章数量阈值
-
-### 2025年5月更新
-
-1. **数据库增强**
-   - 添加标题、文章计数等新字段
-   - 实现数据库自动升级功能，确保平滑迁移
-   - 优化时间戳显示格式
-
-2. **订阅源识别优化**
-   - 从RSS XML文件中提取真实标题，替代域名显示
-   - 改善用户界面，使订阅源更易识别
-
-3. **UI/UX改进**
-   - 优化长URL和文本的显示处理
-   - 实现响应式文本换行
-   - 调整字体大小和元素对齐
-
-4. **性能优化**
-   - 实现增量RSS更新，只获取新文章
-   - 添加URL重复检查，防止创建重复订阅
-   - 减少对目标网站的请求负载
-
-5. **定时更新系统**
-   - 实现自动定时更新功能，无需手动操作
-   - 支持自定义更新频率（1小时至1周）
-   - 智能调度系统，按需更新内容
-   - 提供直观的更新时间信息显示
-
-## 贡献指南
-
-欢迎贡献代码、报告问题或提出新功能建议！
-
-1. Fork项目
-2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建Pull Request
 
 ## 未来计划
 

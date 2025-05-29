@@ -44,6 +44,48 @@
         margin-bottom: 10px;
         font-size: 1.15rem;
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    /* 标签/徽章样式 */
+    .feed-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: white;
+        margin-left: 5px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .feed-badge-id {
+        background-color: #6c757d;
+    }
+    
+    .feed-badge-type {
+        background-color: #007bff;
+    }
+    
+    .feed-badge-green {
+        background-color: #28a745;
+    }
+    
+    .feed-badge-purple {
+        background-color: #6f42c1;
+    }
+    
+    .feed-badge-orange {
+        background-color: var(--primary-color);
+    }
+    
+    .feed-badge i {
+        margin-right: 4px;
+        font-size: 0.7rem;
     }
     
     .feed-source, .feed-selector, .feed-link, .feed-time {
@@ -265,7 +307,19 @@
         {% for feed in feeds %}
             <div class="col-lg-6">
                 <div class="feed-item">
-                    <h3 class="feed-item-title">{{ feed.site_name }}</h3>
+                    <h3 class="feed-item-title">
+                        {{ feed.site_name }}
+                        <span class="feed-badge feed-badge-id"><i class="bi bi-hash"></i>{{ feed.short_id }}</span>
+                        <span class="feed-badge feed-badge-orange"><i class="bi bi-rss"></i>RSS</span>
+                        
+                        {% if feed.auto_update %}
+                        <span class="feed-badge feed-badge-green"><i class="bi bi-clock-history"></i>自动更新</span>
+                        {% endif %}
+                        
+                        {% if feed.selector %}
+                        <span class="feed-badge feed-badge-purple"><i class="bi bi-code"></i>自定义选择器</span>
+                        {% endif %}
+                    </h3>
                     
                     <div class="feed-source">
                         <i class="bi bi-globe"></i> <span class="field-label">源站:</span>
