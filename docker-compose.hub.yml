@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  rss-generator:
+    image: binbin1213/feedforge:latest
+    container_name: rss-generator
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./rss_files:/app/rss_files
+      - ./rss_output:/app/rss_output
+      - ./logs:/app/logs
+      - ./docker_data/rss_feeds.db:/app/rss_feeds.db
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - rss_network
+
+networks:
+  rss_network:
+    driver: bridge 
