@@ -216,8 +216,21 @@
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <i class="bi bi-rss-fill"></i>
-                FeedForge <span class="d-none d-md-inline">飞阅</span>
+                <div style="display: flex; align-items: center;">
+                    <svg width="30" height="30" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span>
+                        <span style="color: #F26522;">FeedForge</span> 
+                        <span class="d-none d-md-inline" style="color: #3C7BB0;">飞阅</span>
+                    </span>
+                </div>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -244,13 +257,31 @@
         <div class="container">
             <section class="hero-section">
                 <div class="container">
-                    <h1>FeedForge <span class="d-none d-md-inline">飞阅</span></h1>
-                    <p>简单易用的RSS生成工具，让每个网站都能有RSS订阅源。从没有RSS的网站中提取内容，生成标准格式的RSS订阅源，让您轻松掌握最新动态。</p>
-                    <div class="hero-actions">
-                        <a href="https://github.com/binbin1213/FeedForge" class="btn btn-primary" target="_blank">
+                    <div style="text-align: center; margin-bottom: 40px;">
+                        <div style="display: inline-block; text-align: left;">
+                            <div style="display: flex; align-items: center; justify-content: center;">
+                                <svg width="80" height="80" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 20px;">
+                                  <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                                  <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                                  <circle cx="194" cy="318" r="28" fill="white"/>
+                                  <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                                  <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                                  <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                                  <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                                </svg>
+                                <h1 style="margin: 0; font-size: 3rem;">
+                                    <span style="color: #F26522;">FeedForge</span> 
+                                    <span style="color: #3C7BB0;">飞阅</span>
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="text-align: center; max-width: 800px; margin: 0 auto 30px auto;">简单易用的RSS生成工具，让每个网站都能有RSS订阅源。从没有RSS的网站中提取内容，生成标准格式的RSS订阅源，让您轻松掌握最新动态。</p>
+                    <div class="hero-actions" style="display: flex; justify-content: center; gap: 15px;">
+                        <a href="https://github.com/binbin1213/FeedForge" class="btn" style="background-color: #F26522; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;" target="_blank">
                             <i class="bi bi-github"></i> GitHub项目
                         </a>
-                        <a href="#how-to-use" class="btn btn-outline-secondary">
+                        <a href="#how-to-use" class="btn" style="background-color: #3C7BB0; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px;">
                             <i class="bi bi-journal-text"></i> 使用教程
                         </a>
                     </div>
@@ -383,7 +414,20 @@
 
     <footer>
         <div class="container">
-            <p><i class="bi bi-rss-fill me-1"></i> FeedForge (飞阅) &copy; 2023-2025 | 一个简单易用的RSS订阅生成工具</p>
+            <p>
+                <span style="display: inline-flex; align-items: center;">
+                    <svg width="20" height="20" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span style="color: #F26522;">FeedForge</span> (<span style="color: #3C7BB0;">飞阅</span>) &copy; 2023-2025 | 一个简单易用的RSS订阅生成工具
+                </span>
+            </p>
         </div>
     </footer>
 
