@@ -66,7 +66,7 @@ python app.py
 
 ## 详细文档
 
-更多详细的使用说明、功能介绍和配置指南，请访问我们的[在线文档](docs/index.html)。
+更多详细的使用说明、功能介绍和配置指南，请访问我们的[在线文档](https://binbin1213.github.io/FeedForge/)。
 
 ## 技术实现
 

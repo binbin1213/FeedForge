@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能特性 - FeedForge (飞阅)</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #F26522;
+            --primary-light: rgba(242, 101, 34, 0.1);
+            --accent-color: #3C7BB0;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-muted: #6c757d;
+            --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 50px 0;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white !important;
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link {
+            border-radius: 6px;
+            transition: all var(--transition-speed);
+            padding: 8px 12px;
+            color: var(--dark-color) !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color) !important;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+        
+        .section-title span {
+            color: var(--primary-color);
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            height: 100%;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .feature-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        
+        footer {
+            padding: 40px 0;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <div style="display: flex; align-items: center;">
+                    <svg width="30" height="30" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span>
+                        <span style="color: #F26522;">FeedForge</span> 
+                        <span class="d-none d-md-inline" style="color: #3C7BB0;">飞阅</span>
+                    </span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="features.html">功能特性</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="installation.html">安装指南</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="usage.html">使用教程</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="notification.html">通知系统</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="updates.html">更新历史</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/binbin1213/FeedForge" target="_blank">
+                            <i class="bi bi-github"></i> GitHub
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <h1 class="section-title">功能<span>特性</span></h1>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-magic"></i>
+                        </div>
+                        <h3 class="feature-title">可视化选择器</h3>
+                        <p class="feature-desc">通过交互式界面，点击选择您想要订阅的内容元素。内置可视化选择器助手，轻松选择网页元素，自动生成CSS选择器，无需手动编写复杂表达式。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-phone"></i>
+                        </div>
+                        <h3 class="feature-title">响应式设计</h3>
+                        <p class="feature-desc">精心设计的界面适配桌面和移动设备，无论您使用什么设备，都能获得一致的优质体验。界面元素会根据屏幕尺寸自动调整，确保最佳显示效果。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <h3 class="feature-title">内置阅读器</h3>
+                        <p class="feature-desc">直接在应用内阅读文章，支持夜间模式。无需跳转到外部应用，即可浏览所有订阅内容。阅读器提供舒适的阅读体验，自动调整字体大小和行间距。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-list-check"></i>
+                        </div>
+                        <h3 class="feature-title">订阅管理</h3>
+                        <p class="feature-desc">集中管理所有创建的RSS订阅源。直观的列表视图展示所有订阅，可以轻松复制RSS链接，查看最近更新时间，以及管理订阅设置。支持批量操作和排序功能。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <h3 class="feature-title">URL重复检查</h3>
+                        <p class="feature-desc">当您尝试添加已存在的网站URL时，系统会自动检测并提示，避免创建重复订阅。智能算法能够识别不同格式但指向相同内容的URL，确保数据库整洁有序。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <h3 class="feature-title">增量更新</h3>
+                        <p class="feature-desc">更新RSS时，系统只会处理新发布的文章，保留已有内容，大大提高更新速度。智能比对算法识别新内容，减少网络请求和处理时间，降低对目标网站的负载。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h3 class="feature-title">更新统计</h3>
+                        <p class="feature-desc">显示新增文章数量和总文章数量，清晰了解更新内容。每次更新后，系统会生成详细统计信息，包括更新时间、新文章比例和内容变化，帮助您掌握订阅动态。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-alarm"></i>
+                        </div>
+                        <h3 class="feature-title">定时更新</h3>
+                        <p class="feature-desc">支持自动定时更新，可自定义更新频率。为每个订阅源设置独立的更新频率（1小时至1周），系统会在后台自动检查并更新内容，无需手动操作。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-bell"></i>
+                        </div>
+                        <h3 class="feature-title">多渠道通知</h3>
+                        <p class="feature-desc">支持邮件、Webhook、桌面通知、Telegram和企业微信等多种通知方式。当RSS源有新文章或发生错误时，系统会通过您配置的渠道发送通知，确保您不会错过重要更新。</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-hdd-stack"></i>
+                        </div>
+                        <h3 class="feature-title">Docker支持</h3>
+                        <p class="feature-desc">提供官方Docker镜像和docker-compose配置，一键部署。支持数据持久化和环境变量配置，适合各种部署环境。Docker容器确保应用在任何平台上都能一致运行，简化维护和升级过程。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="installation.html" class="btn btn-primary btn-lg">查看安装指南</a>
+                <a href="usage.html" class="btn btn-outline-primary btn-lg ms-3">了解使用方法</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                <span style="display: inline-flex; align-items: center;">
+                    <svg width="20" height="20" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span style="color: #F26522;">FeedForge</span> (<span style="color: #3C7BB0;">飞阅</span>) &copy; 2023-2025 | 一个简单易用的RSS订阅生成工具
+                </span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安装指南 - FeedForge (飞阅)</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #F26522;
+            --primary-light: rgba(242, 101, 34, 0.1);
+            --accent-color: #3C7BB0;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-muted: #6c757d;
+            --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 50px 0;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white !important;
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link {
+            border-radius: 6px;
+            transition: all var(--transition-speed);
+            padding: 8px 12px;
+            color: var(--dark-color) !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color) !important;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+        
+        .section-title span {
+            color: var(--primary-color);
+        }
+        
+        .installation-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        
+        .installation-card h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .installation-card h2 i {
+            margin-right: 12px;
+        }
+        
+        .code-block {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        .installation-steps .step {
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .installation-steps .step-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .table {
+            margin: 20px 0;
+        }
+        
+        footer {
+            padding: 40px 0;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <div style="display: flex; align-items: center;">
+                    <svg width="30" height="30" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span>
+                        <span style="color: #F26522;">FeedForge</span> 
+                        <span class="d-none d-md-inline" style="color: #3C7BB0;">飞阅</span>
+                    </span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="features.html">功能特性</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="installation.html">安装指南</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="usage.html">使用教程</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="notification.html">通知系统</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="updates.html">更新历史</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/binbin1213/FeedForge" target="_blank">
+                            <i class="bi bi-github"></i> GitHub
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <h1 class="section-title">安装<span>指南</span></h1>
+            
+            <div class="installation-card">
+                <h2><i class="bi bi-info-circle"></i>前提条件</h2>
+                <p>在开始安装前，请确保您的系统满足以下条件：</p>
+                <ul>
+                    <li>Python 3.7+</li>
+                    <li>pip (Python包管理器)</li>
+                    <li>如果使用Docker方式部署，则需要Docker和Docker Compose</li>
+                </ul>
+            </div>
+            
+            <div class="installation-card">
+                <h2><i class="bi bi-hdd-stack"></i>方式一：使用Docker（推荐）</h2>
+                <p>这是最简单的部署方式，直接使用我们预构建的官方镜像：</p>
+                
+                <div class="installation-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h4>确保安装了Docker和Docker Compose</h4>
+                        <p>如果您还没有安装Docker，请访问<a href="https://docs.docker.com/get-docker/" target="_blank">Docker官方网站</a>获取安装指南。</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h4>创建项目目录</h4>
+                        <div class="code-block">
+                            mkdir -p FeedForge/{rss_files,rss_output,logs,docker_data}<br>
+                            cd FeedForge
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h4>下载docker-compose配置文件</h4>
+                        <div class="code-block">
+                            curl -O https://raw.githubusercontent.com/binbin1213/FeedForge/main/docker-compose.hub.yml
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h4>启动容器</h4>
+                        <div class="code-block">
+                            docker-compose -f docker-compose.hub.yml up -d
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <h4>访问应用</h4>
+                        <p>在浏览器中访问 <a href="http://localhost:8080" target="_blank">http://localhost:8080</a> 开始使用</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <h4>停止应用（需要时）</h4>
+                        <div class="code-block">
+                            docker-compose -f docker-compose.hub.yml down
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="installation-card">
+                <h2><i class="bi bi-code-square"></i>方式二：从源码安装</h2>
+                <p>如果您想自定义安装过程或修改代码，可以选择从源代码安装：</p>
+                
+                <div class="installation-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h4>克隆仓库到本地</h4>
+                        <div class="code-block">
+                            git clone https://github.com/binbin1213/FeedForge.git<br>
+                            cd FeedForge
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h4>创建并激活虚拟环境（推荐）</h4>
+                        <div class="code-block">
+                            python -m venv venv<br>
+                            # Windows<br>
+                            venv\Scripts\activate<br>
+                            # macOS/Linux<br>
+                            source venv/bin/activate
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h4>安装依赖</h4>
+                        <div class="code-block">
+                            pip install -r requirements.txt
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h4>安装可选依赖（用于通知系统）</h4>
+                        <div class="code-block">
+                            # 桌面通知支持（跨平台）<br>
+                            pip install plyer==2.1.0<br><br>
+                            # Windows桌面通知支持（仅Windows系统需要）<br>
+                            pip install win10toast==0.9
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <h4>启动应用</h4>
+                        <div class="code-block">
+                            python app.py
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <h4>访问应用</h4>
+                        <p>在浏览器中访问 <a href="http://localhost:8080" target="_blank">http://localhost:8080</a> 开始使用</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="installation-card">
+                <h2><i class="bi bi-hdd"></i>方式三：从源代码构建Docker镜像</h2>
+                <p>如果您想自定义Docker镜像或修改代码，可以选择从源代码构建：</p>
+                
+                <div class="installation-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h4>克隆仓库</h4>
+                        <div class="code-block">
+                            git clone https://github.com/binbin1213/FeedForge.git<br>
+                            cd FeedForge
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h4>使用Docker Compose构建并启动</h4>
+                        <div class="code-block">
+                            docker-compose up -d --build
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h4>访问应用</h4>
+                        <p>在浏览器中访问 <a href="http://localhost:8080" target="_blank">http://localhost:8080</a> 开始使用</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h4>停止应用（需要时）</h4>
+                        <div class="code-block">
+                            docker-compose down
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="installation-card">
+                <h2><i class="bi bi-database"></i>Docker数据持久化</h2>
+                <p>FeedForge (飞阅) 容器将以下目录挂载到宿主机，确保数据持久化：</p>
+                
+                <ul>
+                    <li><code>./rss_files</code>：存储生成的RSS源文件</li>
+                    <li><code>./rss_output</code>：存储输出文件</li>
+                    <li><code>./logs</code>：应用日志</li>
+                    <li><code>./docker_data/rss_feeds.db</code>：SQLite数据库文件</li>
+                </ul>
+                
+                <p>您可以根据需要备份这些目录。</p>
+            </div>
+            
+            <div class="installation-card">
+                <h2><i class="bi bi-gear"></i>Docker环境变量</h2>
+                <p>Docker部署支持以下环境变量配置：</p>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>环境变量</th>
+                            <th>说明</th>
+                            <th>默认值</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TZ</td>
+                            <td>容器时区</td>
+                            <td>Asia/Shanghai</td>
+                        </tr>
+                        <tr>
+                            <td>PORT</td>
+                            <td>应用端口</td>
+                            <td>8080</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>可以在docker-compose.yml文件中的<code>environment</code>部分修改这些设置。</p>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="features.html" class="btn btn-outline-primary btn-lg me-3">查看功能特性</a>
+                <a href="usage.html" class="btn btn-primary btn-lg">了解使用方法</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                <span style="display: inline-flex; align-items: center;">
+                    <svg width="20" height="20" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span style="color: #F26522;">FeedForge</span> (<span style="color: #3C7BB0;">飞阅</span>) &copy; 2023-2025 | 一个简单易用的RSS订阅生成工具
+                </span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
