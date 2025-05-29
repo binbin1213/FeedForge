@@ -40,6 +40,15 @@ docker-compose.yml
 logs/
 *.log
 
+# Database
+*.db
+rss_feeds.db
+data/
+
+# RSS files
+rss_files/
+rss_output/
+
 # OS
 .DS_Store
 .DS_Store?

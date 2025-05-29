@@ -8,8 +8,10 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./data:/data
+      - ./rss_files:/app/rss_files
+      - ./rss_output:/app/rss_output
       - ./logs:/app/logs
+      - ./docker_data/rss_feeds.db:/app/rss_feeds.db
     environment:
       - TZ=Asia/Shanghai
     networks:

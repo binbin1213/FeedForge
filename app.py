@@ -1394,6 +1394,7 @@ scheduler.add_job(
 )
 
 if __name__ == '__main__':
+    # 初始化和升级数据库
     init_db()
     upgrade_db()  # 检查并升级现有数据库结构
     

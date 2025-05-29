@@ -6,11 +6,17 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 复制应用代码
+# 复制应用代码（不包括数据库和数据文件）
 COPY . .
 
 # 创建数据目录
-RUN mkdir -p /data
+RUN mkdir -p /app/rss_files /app/rss_output
+
+# 确保数据库文件不存在，让应用自动创建
+RUN rm -f /app/rss_feeds.db
+
+# 确保启动脚本有执行权限
+RUN chmod +x /app/start.sh
 
 # 设置环境变量
 ENV FLASK_APP=app.py
@@ -21,4 +27,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # 启动应用
-CMD ["python", "app.py"] 
+CMD ["/app/start.sh"] 
