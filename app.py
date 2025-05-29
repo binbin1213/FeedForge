@@ -284,9 +284,18 @@ def delete_feed(feed_id):
         
         # 尝试删除文件
         try:
-            file_path = os.path.join(os.getcwd(), filename)
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            # 检查文件是否在rss_files目录
+            rss_dir = os.path.join(os.getcwd(), 'rss_files')
+            file_path_in_dir = os.path.join(rss_dir, filename)
+            if os.path.exists(file_path_in_dir):
+                os.remove(file_path_in_dir)
+                app.logger.info(f"已删除文件: {file_path_in_dir}")
+            else:
+                # 检查旧文件是否在根目录
+                old_file_path = os.path.join(os.getcwd(), filename)
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+                    app.logger.info(f"已删除文件: {old_file_path}")
         except Exception as e:
             app.logger.warning(f"删除文件失败: {e}")
             # 即使删除文件失败，也继续返回成功
@@ -315,22 +324,28 @@ def extract_feed_title(filename):
     try:
         import xml.etree.ElementTree as ET
         
-        # 先检查完整路径
-        file_path = os.path.join(os.getcwd(), filename)
+        # 先检查rss_files目录
+        rss_dir = os.path.join(os.getcwd(), 'rss_files')
+        file_path = os.path.join(rss_dir, os.path.basename(filename))
         
-        # 如果不存在，则检查rss_files目录
+        # 如果不存在，检查是否传入了完整路径
         if not os.path.exists(file_path):
-            rss_dir = os.path.join(os.getcwd(), 'rss_files')
-            file_path = os.path.join(rss_dir, filename)
-            
-            # 如果仍然不存在，检查rss_output目录
-            if not os.path.exists(file_path):
-                rss_output_dir = os.path.join(os.getcwd(), 'rss_output')
-                file_path = os.path.join(rss_output_dir, filename)
-                
-                if not os.path.exists(file_path):
-                    app.logger.warning(f"找不到RSS文件: {filename}")
-                    return None
+            if os.path.exists(filename):
+                file_path = filename
+            else:
+                # 检查根目录
+                root_path = os.path.join(os.getcwd(), os.path.basename(filename))
+                if os.path.exists(root_path):
+                    file_path = root_path
+                else:
+                    # 最后尝试检查rss_output目录
+                    rss_output_dir = os.path.join(os.getcwd(), 'rss_output')
+                    output_path = os.path.join(rss_output_dir, os.path.basename(filename))
+                    if os.path.exists(output_path):
+                        file_path = output_path
+                    else:
+                        app.logger.warning(f"找不到RSS文件: {filename}")
+                        return None
             
         # 解析XML文件
         tree = ET.parse(file_path)
@@ -867,20 +882,41 @@ def serve_rss(filename):
         file_path = os.path.join(rss_dir, filename)
         
         # 如果在新目录找不到，尝试在根目录查找（兼容旧文件）
-        if not os.path.exists(file_path):
+        if os.path.exists(file_path):
+            # 设置正确的Content-Type
+            response = send_from_directory(rss_dir, filename)
+            response.headers['Content-Type'] = 'application/xml; charset=utf-8'
+            return response
+        else:
+            # 检查根目录
             old_path = os.path.join(os.getcwd(), filename)
             if os.path.exists(old_path):
                 # 设置正确的Content-Type
                 response = send_from_directory(os.getcwd(), filename)
                 response.headers['Content-Type'] = 'application/xml; charset=utf-8'
+                
+                # 如果文件在根目录，移动到rss_files目录
+                try:
+                    # 确保rss_files目录存在
+                    os.makedirs(rss_dir, exist_ok=True)
+                    
+                    # 移动文件
+                    new_path = os.path.join(rss_dir, filename)
+                    os.rename(old_path, new_path)
+                    
+                    # 更新数据库中的文件路径
+                    db = get_db()
+                    cursor = db.cursor()
+                    cursor.execute('UPDATE feeds SET filename = ? WHERE filename = ?', (filename, filename))
+                    db.commit()
+                    
+                    app.logger.info(f"文件已移动到rss_files目录: {filename}")
+                except Exception as e:
+                    app.logger.warning(f"移动文件到rss_files目录失败: {e}")
+                
                 return response
             else:
                 return jsonify({'error': '文件不存在'}), 404
-            
-        # 设置正确的Content-Type
-        response = send_from_directory(rss_dir, filename)
-        response.headers['Content-Type'] = 'application/xml; charset=utf-8'
-        return response
     except Exception as e:
         app.logger.error(f"提供RSS文件访问失败: {e}")
         return jsonify({'error': str(e)}), 500
@@ -920,10 +956,16 @@ def read_feed(feed_id):
         # 如果无法获取标题，回退到从URL提取域名
         site_name = feed_title or extract_domain_name(source_url)
         
-        # 解析RSS文件
-        file_path = os.path.join(os.getcwd(), filename)
+        # 检查rss_files目录中是否存在该文件
+        rss_dir = os.path.join(os.getcwd(), 'rss_files')
+        file_path = os.path.join(rss_dir, filename)
+        
+        # 如果在新目录找不到，尝试在根目录查找（兼容旧文件）
         if not os.path.exists(file_path):
-            return render_template('error.html', message='RSS文件不存在')
+            file_path = os.path.join(os.getcwd(), filename)
+            if not os.path.exists(file_path):
+                app.logger.warning(f"找不到RSS文件: {filename}")
+                return render_template('error.html', message='RSS文件不存在')
         
         try:
             # 解析XML文件
@@ -1077,6 +1119,10 @@ def update_feed(feed_id):
         selector = feed[2]
         old_filename = feed[3]
         
+        # 确保rss_files目录存在
+        rss_dir = os.path.join(os.getcwd(), 'rss_files')
+        os.makedirs(rss_dir, exist_ok=True)
+        
         # 生成临时文件名
         domain = urlparse(source_url).netloc
         domain_clean = re.sub(r'[^\w\-]', '_', domain)
@@ -1092,13 +1138,13 @@ def update_feed(feed_id):
             result = rss_generator.generate_rss(
                 source_url, 
                 selector, 
-                temp_filename,  # 使用临时文件名
+                os.path.join('rss_files', temp_filename),  # 指定保存到rss_files目录
                 max_pages, 
                 incremental=not force_full  # 默认使用增量更新
             )
             
             # 从生成的RSS文件中提取标题中的中文部分作为文件名
-            feed_title = extract_feed_title(temp_filename) or ""
+            feed_title = extract_feed_title(os.path.join('rss_files', temp_filename)) or ""
             
             # 提取标题中的中文部分
             chinese_title = ""
@@ -1113,10 +1159,6 @@ def update_feed(feed_id):
                 # 清理标题，去除不适合作为文件名的字符
                 clean_title = re.sub(r'[^\w\u4e00-\u9fff\-]', '_', chinese_title)
                 new_filename = f"{clean_title}_{timestamp}.xml"
-                
-                # 确保rss_files目录存在
-                rss_dir = os.path.join(os.getcwd(), 'rss_files')
-                os.makedirs(rss_dir, exist_ok=True)
                 
                 # 重命名文件
                 old_path = os.path.join(rss_dir, temp_filename)
@@ -1150,15 +1192,17 @@ def update_feed(feed_id):
             
             # 尝试删除旧文件
             try:
+                # 检查旧文件是否在rss_files目录
+                old_file_path_in_dir = os.path.join(rss_dir, old_filename)
+                if os.path.exists(old_file_path_in_dir) and old_filename != new_filename:
+                    os.remove(old_file_path_in_dir)
+                    app.logger.info(f"删除旧文件: {old_file_path_in_dir}")
+                
                 # 检查旧文件是否在根目录
                 old_file_path = os.path.join(os.getcwd(), old_filename)
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)
-                
-                # 检查旧文件是否在rss_files目录
-                old_file_path_in_dir = os.path.join(os.getcwd(), 'rss_files', old_filename)
-                if os.path.exists(old_file_path_in_dir):
-                    os.remove(old_file_path_in_dir)
+                    app.logger.info(f"删除旧文件: {old_file_path}")
             except Exception as e:
                 app.logger.warning(f"删除旧文件失败: {e}")
             
@@ -1287,6 +1331,10 @@ def check_feeds_for_updates():
             current_time = datetime.now()
             updated_count = 0
             
+            # 确保rss_files目录存在
+            rss_dir = os.path.join(os.getcwd(), 'rss_files')
+            os.makedirs(rss_dir, exist_ok=True)
+            
             for feed in feeds:
                 feed_id, url, selector, filename, update_frequency, last_check_time = feed
                 
@@ -1315,17 +1363,17 @@ def check_feeds_for_updates():
                         timestamp = current_time.strftime('%Y%m%d')
                         temp_filename = f"{domain_clean}_{timestamp}.xml"
                         
-                        # 调用RSS生成器进行增量更新
+                        # 调用RSS生成器进行增量更新，直接保存到rss_files目录
                         result = rss_generator.generate_rss(
                             url, 
                             selector, 
-                            temp_filename, 
+                            os.path.join('rss_files', temp_filename),  # 直接保存到rss_files目录
                             max_pages=3,  # 默认抓取3页
                             incremental=True  # 使用增量更新
                         )
                         
                         # 从生成的RSS文件中提取标题中的中文部分作为文件名
-                        feed_title = extract_feed_title(temp_filename) or ""
+                        feed_title = extract_feed_title(os.path.join('rss_files', temp_filename)) or ""
                         
                         # 提取标题中的中文部分
                         chinese_title = ""
@@ -1340,10 +1388,6 @@ def check_feeds_for_updates():
                             # 清理标题，去除不适合作为文件名的字符
                             clean_title = re.sub(r'[^\w\u4e00-\u9fff\-]', '_', chinese_title)
                             new_filename = f"{clean_title}_{timestamp}.xml"
-                            
-                            # 确保rss_files目录存在
-                            rss_dir = os.path.join(os.getcwd(), 'rss_files')
-                            os.makedirs(rss_dir, exist_ok=True)
                             
                             # 重命名文件
                             old_path = os.path.join(rss_dir, temp_filename)
@@ -1369,15 +1413,17 @@ def check_feeds_for_updates():
                         
                         # 尝试删除旧文件
                         try:
+                            # 检查旧文件是否在rss_files目录
+                            old_file_path_in_dir = os.path.join(rss_dir, filename)
+                            if os.path.exists(old_file_path_in_dir) and filename != new_filename:
+                                os.remove(old_file_path_in_dir)
+                                app.logger.info(f"删除旧文件: {old_file_path_in_dir}")
+                            
                             # 检查旧文件是否在根目录
                             old_file_path = os.path.join(os.getcwd(), filename)
                             if os.path.exists(old_file_path):
                                 os.remove(old_file_path)
-                            
-                            # 检查旧文件是否在rss_files目录
-                            old_file_path_in_dir = os.path.join(os.getcwd(), 'rss_files', filename)
-                            if os.path.exists(old_file_path_in_dir):
-                                os.remove(old_file_path_in_dir)
+                                app.logger.info(f"删除旧文件: {old_file_path}")
                         except Exception as e:
                             app.logger.warning(f"删除旧文件失败: {e}")
                         
@@ -1410,10 +1456,77 @@ scheduler.add_job(
     replace_existing=True
 )
 
+def sync_filenames_with_filesystem():
+    """同步数据库中的文件名与本地文件系统"""
+    app.logger.info("开始同步数据库中的文件名与本地文件系统")
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        
+        # 获取所有RSS订阅
+        cursor.execute('SELECT id, filename FROM feeds')
+        feeds = cursor.fetchall()
+        
+        # 确保rss_files目录存在
+        rss_dir = os.path.join(os.getcwd(), 'rss_files')
+        os.makedirs(rss_dir, exist_ok=True)
+        
+        updated_count = 0
+        for feed_id, filename in feeds:
+            # 检查文件是否存在于rss_files目录
+            file_path_in_dir = os.path.join(rss_dir, filename)
+            if os.path.exists(file_path_in_dir):
+                # 文件已在正确位置，无需操作
+                continue
+                
+            # 检查文件是否在根目录
+            old_file_path = os.path.join(os.getcwd(), filename)
+            if os.path.exists(old_file_path):
+                # 提取RSS标题
+                feed_title = extract_feed_title(filename)
+                
+                # 提取标题中的中文部分
+                chinese_title = ""
+                if feed_title:
+                    chinese_match = re.search(r'[\u4e00-\u9fff_]+', feed_title)
+                    if chinese_match:
+                        chinese_title = chinese_match.group()
+                
+                # 创建新文件名
+                timestamp = datetime.now().strftime('%Y%m%d')
+                if chinese_title:
+                    # 清理标题，去除不适合作为文件名的字符
+                    clean_title = re.sub(r'[^\w\u4e00-\u9fff\-]', '_', chinese_title)
+                    new_filename = f"{clean_title}_{timestamp}.xml"
+                else:
+                    # 如果无法提取中文标题，使用原始文件名
+                    new_filename = filename
+                
+                # 移动文件到rss_files目录
+                new_path = os.path.join(rss_dir, new_filename)
+                try:
+                    os.rename(old_file_path, new_path)
+                    app.logger.info(f"文件已移动: {filename} -> rss_files/{new_filename}")
+                    
+                    # 更新数据库中的文件名
+                    cursor.execute('UPDATE feeds SET filename = ? WHERE id = ?', (new_filename, feed_id))
+                    db.commit()
+                    updated_count += 1
+                except Exception as e:
+                    app.logger.warning(f"移动文件失败: {e}")
+        
+        app.logger.info(f"文件名同步完成，共更新了{updated_count}个文件")
+    except Exception as e:
+        app.logger.error(f"同步文件名失败: {e}")
+
 if __name__ == '__main__':
     # 初始化和升级数据库
     init_db()
     upgrade_db()  # 检查并升级现有数据库结构
+    
+    # 在应用上下文中同步文件名
+    with app.app_context():
+        sync_filenames_with_filesystem()
     
     # 集成通知系统
     try:
