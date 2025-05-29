@@ -16,14 +16,14 @@ import xml.etree.ElementTree as ET
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def get_page_content(url, headers=None):
-    """获取网页内容"""
+    """获取页面内容"""
     if not headers:
-                    headers = {
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
-                    }
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+        }
     try:
         response = requests.get(url, headers=headers, timeout=15)
-                    response.raise_for_status()
+        response.raise_for_status()
         return response.text
     except Exception as e:
         logging.error(f"获取页面失败: {url}, 错误: {e}")
@@ -289,13 +289,13 @@ def generate_rss(url, selector, output_file=None, max_pages=3, incremental=True)
         'articles': all_articles  # 返回文章列表，以便获取最新文章标题
     }
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
     # 解析命令行参数
-        if len(sys.argv) < 2:
+    if len(sys.argv) < 2:
         print("用法: python rss_generator.py <网站URL> [CSS选择器] [输出文件名] [最大页数]")
-            sys.exit(1)
-            
-        url = sys.argv[1]
+        sys.exit(1)
+        
+    url = sys.argv[1]
     selector = sys.argv[2] if len(sys.argv) > 2 else ""
     output_file = sys.argv[3] if len(sys.argv) > 3 else None
     max_pages = int(sys.argv[4]) if len(sys.argv) > 4 else 3
