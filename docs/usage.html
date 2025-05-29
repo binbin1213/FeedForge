@@ -1,1 +1,378 @@
- 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用教程 - FeedForge (飞阅)</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #F26522;
+            --primary-light: rgba(242, 101, 34, 0.1);
+            --accent-color: #3C7BB0;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-muted: #6c757d;
+            --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 50px 0;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white !important;
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link {
+            border-radius: 6px;
+            transition: all var(--transition-speed);
+            padding: 8px 12px;
+            color: var(--dark-color) !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color) !important;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--dark-color);
+            text-align: center;
+        }
+        
+        .section-title span {
+            color: var(--primary-color);
+        }
+        
+        .usage-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        
+        .usage-card h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .usage-card h2 i {
+            margin-right: 12px;
+        }
+        
+        .usage-card h3 {
+            color: var(--accent-color);
+            font-weight: 600;
+            margin: 25px 0 15px;
+            font-size: 1.3rem;
+        }
+        
+        .usage-steps {
+            counter-reset: step-counter;
+        }
+        
+        .usage-step {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 20px;
+        }
+        
+        .usage-step::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 25px;
+            height: 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .usage-image {
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .usage-image img {
+            width: 100%;
+            height: auto;
+        }
+        
+        .usage-tip {
+            background-color: var(--primary-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .usage-tip p:last-child {
+            margin-bottom: 0;
+        }
+        
+        footer {
+            padding: 40px 0;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <div style="display: flex; align-items: center;">
+                    <svg width="30" height="30" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span>
+                        <span style="color: #F26522;">FeedForge</span> 
+                        <span class="d-none d-md-inline" style="color: #3C7BB0;">飞阅</span>
+                    </span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="features.html">功能特性</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="installation.html">安装指南</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="usage.html">使用教程</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="notification.html">通知系统</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="updates.html">更新历史</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/binbin1213/FeedForge" target="_blank">
+                            <i class="bi bi-github"></i> GitHub
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <h1 class="section-title">使用<span>教程</span></h1>
+            
+            <div class="usage-card">
+                <h2><i class="bi bi-plus-square"></i>创建新的RSS订阅</h2>
+                
+                <div class="usage-steps">
+                    <div class="usage-step">
+                        <h4>点击首页的"创建新RSS"按钮或导航栏中的"创建RSS"</h4>
+                        <p>在FeedForge (飞阅)的首页，您会看到一个显眼的"创建新RSS"按钮，或者您也可以通过顶部导航栏中的"创建RSS"链接进入创建页面。</p>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>在选择器助手页面，输入想要订阅的网站URL并加载</h4>
+                        <p>在创建页面，您会看到一个URL输入框。输入您想要创建RSS订阅的网站地址，然后点击"加载"按钮。系统会加载该网页并显示预览。</p>
+                        <div class="usage-tip">
+                            <p><strong>提示：</strong>确保输入完整的URL，包括"http://"或"https://"前缀，以确保网页能够正确加载。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>点击"开始选择"，然后在预览中点击代表文章的元素</h4>
+                        <p>网页加载完成后，点击"开始选择"按钮，进入可视化选择模式。在这个模式下，当您将鼠标悬停在网页的不同部分时，系统会用高亮框标出当前元素。</p>
+                        <p>将鼠标移动到代表文章的元素上（通常是标题或包含标题的区域），然后点击选择该元素。理想情况下，您应该选择能够同时选中页面上所有文章的元素类型。</p>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>系统会自动生成CSS选择器，点击"测试选择器"验证效果</h4>
+                        <p>选择元素后，系统会自动生成对应的CSS选择器，并显示在选择器输入框中。点击"测试选择器"按钮，系统会高亮显示所有匹配该选择器的元素，让您确认是否正确选中了所有想要的文章元素。</p>
+                        <p>如果测试结果不符合预期，您可以手动调整选择器，或重新在页面上选择元素。</p>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>填写输出文件名，点击"生成RSS"完成创建</h4>
+                        <p>确认选择器正确后，在"输出文件名"字段中输入一个有意义的名称，用于标识此RSS订阅。然后点击"生成RSS"按钮完成创建。</p>
+                        <p>系统会解析网页，提取文章信息，并生成标准格式的RSS文件。创建成功后，您会被重定向到RSS阅读页面，可以看到刚刚创建的订阅内容。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="usage-card">
+                <h2><i class="bi bi-list-ul"></i>管理订阅</h2>
+                
+                <p>在FeedForge (飞阅)中，您可以轻松管理所有创建的RSS订阅源，包括查看、更新和删除订阅。</p>
+                
+                <ul>
+                    <li><strong>查看订阅列表：</strong> 在首页或"阅读订阅"页面查看所有创建的RSS订阅</li>
+                    <li><strong>复制RSS链接：</strong> 使用复制按钮获取RSS链接，添加到您喜欢的RSS阅读器</li>
+                    <li><strong>阅读内容：</strong> 点击"阅读"按钮直接在应用内浏览文章内容</li>
+                    <li><strong>更新订阅：</strong> 点击"更新订阅"按钮刷新RSS内容，系统会智能识别新文章</li>
+                    <li><strong>查看更新统计：</strong> 更新完成后，系统会显示新增文章数量和总文章数量</li>
+                    <li><strong>删除订阅：</strong> 使用删除按钮移除不需要的订阅</li>
+                </ul>
+            </div>
+            
+            <div class="usage-card">
+                <h2><i class="bi bi-arrow-repeat"></i>智能更新机制</h2>
+                
+                <p>FeedForge (飞阅) 采用了先进的智能更新机制，提高效率并减少资源消耗：</p>
+                
+                <h3>URL重复检查</h3>
+                <p>当您尝试添加已存在的网站URL时，系统会自动检测并提示，避免创建重复订阅。这确保了数据库的整洁和资源的有效利用。</p>
+                
+                <h3>增量更新</h3>
+                <p>更新RSS时，系统只会处理新发布的文章，保留已有内容，大大提高更新速度。这种增量更新策略不仅节省了系统资源，还减少了对目标网站的请求次数。</p>
+                
+                <h3>资源优化</h3>
+                <p>通过减少对目标网站的请求次数，降低服务器负载，同时减少被目标站点限制访问的风险。系统会智能调度请求，避免过于频繁地访问同一网站。</p>
+                
+                <h3>历史保存</h3>
+                <p>即使原网站删除了旧文章，您的RSS订阅中仍然保留完整历史记录。这意味着您可以随时查看之前的文章，即使它们已经从原网站上删除。</p>
+                
+                <h3>定时自动更新</h3>
+                <p>为每个订阅源设置独立的更新频率（1小时至1周），系统会在后台自动检查并更新内容，无需手动操作。这确保您总是能够获取最新的内容，而无需手动刷新。</p>
+            </div>
+            
+            <div class="usage-card">
+                <h2><i class="bi bi-clock"></i>定时更新设置</h2>
+                
+                <p>FeedForge (飞阅) 提供了灵活的定时更新选项，让您可以自定义每个RSS源的更新频率。</p>
+                
+                <div class="usage-steps">
+                    <div class="usage-step">
+                        <h4>在订阅详情页面，点击"定时更新设置"按钮</h4>
+                        <p>在RSS阅读页面或订阅列表中，找到目标订阅，点击"设置"或"定时更新设置"按钮，打开设置面板。</p>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>启用自动更新开关，并选择合适的更新频率</h4>
+                        <p>在设置面板中，将"自动更新"开关拨到开启状态，然后从下拉菜单中选择更新频率。系统提供多种预设频率，从1小时到1周不等，您可以根据网站更新的频繁程度选择合适的更新间隔。</p>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>查看上次检查时间和下次预计更新时间</h4>
+                        <p>设置完成后，系统会显示上次检查时间和下次预计更新时间，让您清楚了解更新状态。</p>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>保存设置，系统会按照设定的频率自动更新</h4>
+                        <p>点击"保存"按钮确认设置。系统会根据您设定的频率，在后台自动检查和更新内容，无需您手动操作。</p>
+                    </div>
+                    
+                    <div class="usage-step">
+                        <h4>随时修改更新频率或关闭自动更新</h4>
+                        <p>您可以随时回到设置面板，调整更新频率或完全关闭自动更新功能。关闭后，您仍然可以通过手动点击"更新订阅"按钮来刷新内容。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="usage-card">
+                <h2><i class="bi bi-info-circle"></i>负责任使用说明</h2>
+                
+                <p>本工具设计用于个人使用，请负责任地使用并注意以下事项：</p>
+                
+                <h3>尊重网站规则</h3>
+                <p>请遵守目标网站的robots.txt规则和使用条款。不要尝试爬取明确禁止爬取的网站内容。</p>
+                
+                <h3>合理访问频率</h3>
+                <p>避免频繁请求同一网站，建议设置合理的更新间隔。过于频繁的访问可能导致IP被目标网站封禁，或对目标网站造成不必要的负担。</p>
+                
+                <h3>版权考虑</h3>
+                <p>RSS内容应仅用于个人阅读，请尊重原创作者的版权。不要未经授权转载或分发通过本工具获取的内容。</p>
+                
+                <h3>个人使用</h3>
+                <p>本工具设计用于个人订阅需求，不适合大规模数据采集。请不要使用本工具进行商业目的的数据挖掘或抓取大量网站。</p>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="notification.html" class="btn btn-primary btn-lg">了解通知系统</a>
+                <a href="features.html" class="btn btn-outline-primary btn-lg ms-3">查看功能特性</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>
+                <span style="display: inline-flex; align-items: center;">
+                    <svg width="20" height="20" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                      <circle cx="256" cy="256" r="240" fill="#F26522" opacity="0.9"/>
+                      <path d="M371 141C371 137.134 367.866 134 364 134H148C144.134 134 141 137.134 141 141V371C141 374.866 144.134 378 148 378H364C367.866 378 371 374.866 371 371V141Z" stroke="white" stroke-width="16" stroke-linecap="round"/>
+                      <circle cx="194" cy="318" r="28" fill="white"/>
+                      <path d="M194 256C230.944 256 261 286.056 261 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M194 194C265.007 194 323 251.993 323 323" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                      <path d="M320 180C360 150 380 170 390 180" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                      <path d="M335 155C375 125 395 145 405 155" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    </svg>
+                    <span style="color: #F26522;">FeedForge</span> (<span style="color: #3C7BB0;">飞阅</span>) &copy; 2023-2025 | 一个简单易用的RSS订阅生成工具
+                </span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
