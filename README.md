@@ -10,6 +10,7 @@
 ![Release](https://img.shields.io/badge/版本-1.1.0-success)
 ![Last Commit](https://img.shields.io/github/last-commit/binbin1213/FeedForge)
 ![RSS](https://img.shields.io/badge/RSS-飞阅订阅-FFA500?logo=rss)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/binbin1213/FeedForge)
 
 FeedForge (飞阅) 是一个轻量级Web应用，帮助用户为任何网站创建RSS订阅源，即使该网站本身不提供RSS功能。通过直观的界面和智能选择器，轻松将您喜爱的网站内容转换为标准RSS格式，方便在各类RSS阅读器中订阅。支持Docker部署，可以一键安装使用。
 
