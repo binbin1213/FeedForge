@@ -12,9 +12,7 @@
 ![RSS](https://img.shields.io/badge/RSS-飞阅订阅-FFA500?logo=rss)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/binbin1213/FeedForge)
 
-FeedForge (飞阅) 是一个轻量级Web应用，帮助用户为任何网站创建RSS订阅源，即使该网站本身不提供RSS功能。通过直观的界面和智能选择器，轻松将您喜爱的网站内容转换为标准RSS格式，方便在各类RSS阅读器中订阅。支持Docker部署，可以一键安装使用。
-
-![FeedForge (飞阅)截图](screenshot.png)
+FeedForge (飞阅) 是一个轻量级Web应用，帮助您为任何网站创建RSS订阅源，即使该网站本身不提供RSS功能。通过直观的界面和智能选择器，您可以轻松将喜爱的网站内容转换为标准RSS格式，方便在各类RSS阅读器中订阅。支持Docker部署，一键安装即可开始使用。
 
 ## 主要功能
 
@@ -63,11 +61,14 @@ pip install -r requirements.txt
 python app.py
 ```
 
-访问 http://localhost:8080 开始使用
+启动完成后，访问 http://localhost:8080 即可开始使用 FeedForge！
 
 ## 详细文档
 
-更多详细的使用说明、功能介绍和配置指南，请访问我们的[在线文档](https://binbin1213.github.io/FeedForge/)。
+更多详细的使用说明、功能介绍和配置指南，请访问：
+- [在线文档](https://binbin1213.github.io/FeedForge/)
+- [本地文档](./docs/) - 包含完整的功能说明和配置指南
+- [版本更新日志](./RELEASE_NOTES.md) - 查看最新功能和改进
 
 ## 技术实现
 
@@ -94,7 +95,7 @@ python app.py
 
 ## 开源许可
 
-本项目采用 MIT 许可证 - 详情请查看 [LICENSE](LICENSE) 文件
+本项目采用 MIT 许可证 - 详情请查看 [LICENSE](./LICENSE) 文件
 
 ## 免责声明
 
